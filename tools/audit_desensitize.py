@@ -170,9 +170,11 @@ def selftest():
     if "phone" in {f[3] for f in findings if f[3] == "phone" and f[2] == 4}:
         print("SELFTEST FAIL: 64 位 hex 串被误判为手机号")
         ok = False
-    # noreply / example.com 不得判邮箱
+    # 阴性对照：noreply / example.com / 传输地址不得判邮箱
+    # 夹具程序化合成（用真实换行，避免字符串字面量里的 \n 造成边界误判）
     neg = []
     neg_sample = "\n".join(["a@users.noreply.github.com", "b@example.com", "git@github.com"])
+    _scan_text(neg_sample, "<neg>", neg)
     if any(f[3] == "email" for f in neg):
         print("SELFTEST FAIL: noreply/example/传输地址被误判为个人邮箱")
         ok = False
