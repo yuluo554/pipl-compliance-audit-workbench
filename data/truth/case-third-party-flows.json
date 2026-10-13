@@ -1,0 +1,48 @@
+{
+  "case_id": "third-party-flows",
+  "expected": {
+    "also_expect_nonpass": [
+      "noncompliant",
+      "partial"
+    ],
+    "summary": "noncompliant",
+    "threshold_conclusions": [],
+    "triggered": false
+  },
+  "input_card": {
+    "automated_decision": false,
+    "cross_border_transfer": false,
+    "entrusted_processing": true,
+    "joint_processing": true,
+    "large_platform": false,
+    "minors_under_14": false,
+    "processes_public_info": false,
+    "provides_to_third_party": true,
+    "public_place_devices": false,
+    "publicizes_personal_info": false,
+    "security_incident_occurred": false,
+    "sensitive": false,
+    "transfer_event": true
+  },
+  "manual_results": {
+    "CHK-PRO-005": {
+      "note": "合成：已约定权利义务",
+      "state": "compliant"
+    },
+    "CHK-PRO-006": {
+      "note": "合成：合同缺保护措施",
+      "state": "partial"
+    },
+    "CHK-PRO-007": {
+      "note": "合成：已告知接收方",
+      "state": "compliant"
+    },
+    "CHK-PRO-008": {
+      "note": "合成：未取得单独同意",
+      "state": "noncompliant"
+    }
+  },
+  "note": "指引五/六/七/八 only_if",
+  "ruleset_id": "pipl-audit-2025",
+  "title": "共同处理/委托/转移/向他人提供 全开门控场景"
+}

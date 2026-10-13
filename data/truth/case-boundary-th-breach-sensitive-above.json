@@ -1,0 +1,31 @@
+{
+  "case_id": "boundary-th-breach-sensitive-above",
+  "expected": {
+    "also_expect_nonpass": [],
+    "summary": "not_assessed",
+    "threshold_conclusions": [
+      "may_require_professional_institution"
+    ],
+    "triggered": true
+  },
+  "input_card": {
+    "automated_decision": false,
+    "breach_sensitive_scale": 100001,
+    "cross_border_transfer": false,
+    "entrusted_processing": false,
+    "joint_processing": false,
+    "large_platform": false,
+    "minors_under_14": false,
+    "processes_public_info": false,
+    "provides_to_third_party": false,
+    "public_place_devices": false,
+    "publicizes_personal_info": false,
+    "security_incident_occurred": false,
+    "sensitive": false,
+    "transfer_event": false
+  },
+  "manual_results": {},
+  "note": "value=100000, actual=100001",
+  "ruleset_id": "pipl-audit-2025",
+  "title": "门槛边界：TH-BREACH-SENSITIVE（breach_sensitive_scale >= above 时）"
+}

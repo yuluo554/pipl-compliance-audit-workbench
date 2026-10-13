@@ -8,7 +8,7 @@
 import json
 from pathlib import Path
 
-from ..errors import PendingEntryError, RulesetError
+from ..errors import PendingEntryError, RulesetError, UnattributedEntryError
 from ..paths import find_data_dir
 from .model import STATUS_VERIFIED, Ruleset
 
@@ -38,10 +38,13 @@ def load_ruleset(path_or_dir=None, ruleset_id=None, allow_pending=False):
 
 
 def effective_ruleset(rs):
-    """生效门：拒绝 status != verified 的条目。"""
+    """生效门：拒绝 status != verified 的条目，以及 verified 但缺出处的条目。"""
     pending = rs.pending_entries()
     if pending:
         raise PendingEntryError(pending)
+    unattributed = rs.unattributed_entries()
+    if unattributed:
+        raise UnattributedEntryError(unattributed)
     return rs
 
 

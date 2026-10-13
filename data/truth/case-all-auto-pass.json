@@ -1,0 +1,37 @@
+{
+  "case_id": "all-auto-pass",
+  "expected": {
+    "also_expect_nonpass": [],
+    "summary": "compliant",
+    "threshold_conclusions": [],
+    "triggered": false
+  },
+  "input_card": {
+    "automated_decision": false,
+    "cross_border_transfer": false,
+    "deletion_request_channel": true,
+    "entrusted_processing": false,
+    "has_contingency_plan": true,
+    "has_internal_policy": true,
+    "has_processing_rules": true,
+    "has_security_measures": true,
+    "has_training_plan": true,
+    "joint_processing": false,
+    "large_platform": false,
+    "minors_under_14": false,
+    "notice_before_processing": true,
+    "processes_public_info": false,
+    "provides_to_third_party": false,
+    "public_place_devices": false,
+    "publicizes_personal_info": false,
+    "rights_request_mechanism": true,
+    "rules_explanation_channel": true,
+    "security_incident_occurred": false,
+    "sensitive": false,
+    "transfer_event": false
+  },
+  "manual_results": {},
+  "note": "method=auto 映射",
+  "ruleset_id": "pipl-audit-2025",
+  "title": "全部自动核查通过 → 汇总 compliant"
+}

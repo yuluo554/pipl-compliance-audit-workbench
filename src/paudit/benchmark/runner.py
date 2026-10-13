@@ -93,32 +93,41 @@ def _suite_checklist_selfconsistent(rs):
 
 
 def _suite_synthetic_scenarios(rs):
-    """B3 合成场景：真值 vs 引擎汇总对账（真值库缺失时如实标注未生成）。"""
+    """B3 合成场景：真值 vs 引擎汇总对账（真值库缺失时如实标注未生成）。
+
+    只跑与当前规则包 `ruleset_id` 匹配的真值用例（真值由生成器按权威规则包产出）。
+    """
     import json
-    from pathlib import Path
 
     from ..paths import find_data_dir
 
     truth_dir = find_data_dir() / "truth"
     files = sorted(truth_dir.glob("*.json")) if truth_dir.is_dir() else []
-    if not files:
+    cases = []
+    for f in files:
+        case = json.loads(f.read_text(encoding="utf-8"))
+        if case.get("ruleset_id", rs.ruleset_id) == rs.ruleset_id:
+            cases.append(case)
+    if not cases:
         return {"name": "B3 合成审计场景", "total": 0, "passed": 0, "failed": 0,
-                "notes": "真值库未生成（data/truth/ 为空）——该类用例未生成，不假装覆盖"}
+                "notes": "真值库无匹配 ruleset_id=%s 的用例——该类用例未生成，不假装覆盖"
+                         % rs.ruleset_id}
 
     from ..engine.pipeline import AuditRequest, compute_audit
 
     total = failed = 0
-    for f in files:
-        case = json.loads(f.read_text(encoding="utf-8"))
+    for case in cases:
         total += 1
         res = compute_audit(
             AuditRequest(case.get("input_card", {}), case.get("manual_results", {})),
             rs)
-        exp = case.get("expected", {}).get("summary")
-        if exp is not None and res.summary != exp:
+        exp = case.get("expected", {})
+        if exp.get("summary") is not None and res.summary != exp["summary"]:
+            failed += 1
+        if exp.get("triggered") is not None and res.threshold_result.triggered != exp["triggered"]:
             failed += 1
         # also_expect 对账：非 pass 状态集
-        also = case.get("expected", {}).get("also_expect_nonpass")
+        also = exp.get("also_expect_nonpass")
         if also is not None:
             states = [r.state for r in res.item_results]
             if observed_nonpass(states) != sorted(also):

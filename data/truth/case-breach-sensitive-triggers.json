@@ -1,0 +1,31 @@
+{
+  "case_id": "breach-sensitive-triggers",
+  "expected": {
+    "also_expect_nonpass": [],
+    "summary": "not_assessed",
+    "threshold_conclusions": [
+      "may_require_professional_institution"
+    ],
+    "triggered": true
+  },
+  "input_card": {
+    "automated_decision": false,
+    "breach_sensitive_scale": 100000,
+    "cross_border_transfer": false,
+    "entrusted_processing": false,
+    "joint_processing": false,
+    "large_platform": false,
+    "minors_under_14": false,
+    "processes_public_info": false,
+    "provides_to_third_party": false,
+    "public_place_devices": false,
+    "publicizes_personal_info": false,
+    "security_incident_occurred": false,
+    "sensitive": false,
+    "transfer_event": false
+  },
+  "manual_results": {},
+  "note": "第五条（三）敏感信息 op='>='",
+  "ruleset_id": "pipl-audit-2025",
+  "title": "安全事件致 10 万人以上敏感个人信息泄露 → 保护部门可要求委托专业机构"
+}

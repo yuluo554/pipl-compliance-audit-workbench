@@ -1,0 +1,31 @@
+{
+  "case_id": "boundary-th-scale-periodic-below",
+  "expected": {
+    "also_expect_nonpass": [],
+    "summary": "not_assessed",
+    "threshold_conclusions": [
+      "require_personal_info_officer"
+    ],
+    "triggered": true
+  },
+  "input_card": {
+    "automated_decision": false,
+    "cross_border_transfer": false,
+    "entrusted_processing": false,
+    "joint_processing": false,
+    "large_platform": false,
+    "minors_under_14": false,
+    "processes_public_info": false,
+    "provides_to_third_party": false,
+    "public_place_devices": false,
+    "publicizes_personal_info": false,
+    "scale": 9999999,
+    "security_incident_occurred": false,
+    "sensitive": false,
+    "transfer_event": false
+  },
+  "manual_results": {},
+  "note": "value=10000000, actual=9999999",
+  "ruleset_id": "pipl-audit-2025",
+  "title": "门槛边界：TH-SCALE-PERIODIC（scale > below 时）"
+}

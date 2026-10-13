@@ -1,0 +1,103 @@
+{
+  "case_id": "rand-06",
+  "expected": {
+    "also_expect_nonpass": [
+      "noncompliant",
+      "noncompliant",
+      "noncompliant",
+      "noncompliant",
+      "noncompliant",
+      "noncompliant",
+      "noncompliant",
+      "noncompliant",
+      "partial"
+    ],
+    "summary": "noncompliant",
+    "threshold_conclusions": [],
+    "triggered": false
+  },
+  "input_card": {
+    "automated_decision": false,
+    "cross_border_transfer": true,
+    "deletion_request_channel": false,
+    "entrusted_processing": true,
+    "has_contingency_plan": false,
+    "has_internal_policy": true,
+    "has_processing_rules": false,
+    "has_security_measures": false,
+    "has_training_plan": false,
+    "joint_processing": false,
+    "large_platform": false,
+    "minors_under_14": false,
+    "processes_public_info": true,
+    "provides_to_third_party": false,
+    "public_place_devices": false,
+    "publicizes_personal_info": true,
+    "rights_request_mechanism": true,
+    "rules_explanation_channel": false,
+    "security_incident_occurred": true,
+    "sensitive": false,
+    "transfer_event": false
+  },
+  "manual_results": {
+    "CHK-DOC-022": {
+      "note": "合成随机录入",
+      "state": "noncompliant"
+    },
+    "CHK-DOC-026": {
+      "note": "合成随机录入",
+      "state": "partial"
+    },
+    "CHK-PRO-002": {
+      "note": "合成随机录入",
+      "state": "unknown"
+    },
+    "CHK-PRO-005": {
+      "note": "合成随机录入",
+      "state": "unknown"
+    },
+    "CHK-PRO-006": {
+      "note": "合成随机录入",
+      "state": "compliant"
+    },
+    "CHK-PRO-007": {
+      "note": "合成随机录入",
+      "state": "compliant"
+    },
+    "CHK-PRO-010": {
+      "note": "合成随机录入",
+      "state": "noncompliant"
+    },
+    "CHK-PRO-012": {
+      "note": "合成随机录入",
+      "state": "unknown"
+    },
+    "CHK-PRO-014": {
+      "note": "合成随机录入",
+      "state": "unknown"
+    },
+    "CHK-PRO-015": {
+      "note": "合成随机录入",
+      "state": "unknown"
+    },
+    "CHK-PRO-023": {
+      "note": "合成随机录入",
+      "state": "compliant"
+    },
+    "CHK-RES-025": {
+      "note": "合成随机录入",
+      "state": "partial"
+    },
+    "CHK-TEC-009": {
+      "note": "合成随机录入",
+      "state": "compliant"
+    },
+    "CHK-TEC-011": {
+      "note": "合成随机录入",
+      "state": "partial"
+    }
+  },
+  "note": "seed=0x5EED5EED2026",
+  "ruleset_id": "pipl-audit-2025",
+  "title": "随机合成场景 #06"
+}

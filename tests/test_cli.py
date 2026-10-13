@@ -17,23 +17,35 @@ def test_check_demo_noncompliant_exit1(tmp_path, capsys):
     assert json.loads(out.read_text(encoding="utf-8"))["item_results"]
 
 
-def test_check_authoritative_pending_exit2(capsys):
-    """权威规则包含 pending → 门控拦截 → 输入不可用 exit 2。"""
-    rc = main(["check", str(DEMO_CARD)])
-    assert rc == 2
-
-
 def test_check_missing_input_exit2():
     assert main(["check", "no/such/file.json"]) == 2
+
+
+def test_check_authoritative_not_assessed_exit1(tmp_path, capsys):
+    """M1 后权威规则包已生效；示例卡对权威检查单多为未观测 → 未评估 → exit 1。"""
+    out = tmp_path / "draft.json"
+    rc = main(["check", str(DEMO_CARD), "--out", str(out)])
+    assert rc == 1
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["summary"] == "not_assessed"
+
+
+def test_check_preview_flag_still_works(tmp_path, capsys):
+    """--preview 仅预览（不做 pending 拦截），判定照跑。"""
+    out = tmp_path / "draft.json"
+    rc = main(["check", str(DEMO_CARD), "--ruleset", str(AUTHORITATIVE_RULESET),
+               "--preview", "--out", str(out)])
+    assert rc in (0, 1)
+    assert out.is_file()
 
 
 def test_no_command_exit2():
     assert main([]) == 2
 
 
-def test_bench_authoritative_gate_exit1():
-    """规则包未生效 → 基准未达标 exit 1。"""
-    assert main(["bench"]) == 1
+def test_bench_authoritative_passes_after_m1():
+    """M1 后权威规则包生效 → 基准可跑且达标 → exit 0。"""
+    assert main(["bench"]) == 0
 
 
 def test_report_roundtrip(tmp_path):

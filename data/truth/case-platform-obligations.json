@@ -1,0 +1,42 @@
+{
+  "case_id": "platform-obligations",
+  "expected": {
+    "also_expect_nonpass": [
+      "partial"
+    ],
+    "summary": "partial",
+    "threshold_conclusions": [
+      "require_personal_info_officer"
+    ],
+    "triggered": true
+  },
+  "input_card": {
+    "automated_decision": false,
+    "cross_border_transfer": false,
+    "entrusted_processing": false,
+    "joint_processing": false,
+    "large_platform": true,
+    "minors_under_14": false,
+    "processes_public_info": false,
+    "provides_to_third_party": false,
+    "public_place_devices": false,
+    "publicizes_personal_info": false,
+    "scale": 1500000,
+    "security_incident_occurred": false,
+    "sensitive": false,
+    "transfer_event": false
+  },
+  "manual_results": {
+    "CHK-DOC-026": {
+      "note": "合成：抽样验证不充分",
+      "state": "partial"
+    },
+    "CHK-DOC-027": {
+      "note": "合成：报告已披露",
+      "state": "compliant"
+    }
+  },
+  "note": "指引二十六/二十七 only_if large_platform",
+  "ruleset_id": "pipl-audit-2025",
+  "title": "重要平台义务场景：平台规则 + 社会责任报告适用"
+}

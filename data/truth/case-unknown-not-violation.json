@@ -1,0 +1,33 @@
+{
+  "case_id": "unknown-not-violation",
+  "expected": {
+    "also_expect_nonpass": [],
+    "summary": "not_assessed",
+    "threshold_conclusions": [],
+    "triggered": false
+  },
+  "input_card": {
+    "automated_decision": false,
+    "cross_border_transfer": false,
+    "entrusted_processing": false,
+    "joint_processing": false,
+    "large_platform": false,
+    "minors_under_14": false,
+    "processes_public_info": false,
+    "provides_to_third_party": false,
+    "public_place_devices": false,
+    "publicizes_personal_info": false,
+    "security_incident_occurred": false,
+    "sensitive": false,
+    "transfer_event": false
+  },
+  "manual_results": {
+    "CHK-PRO-002": {
+      "note": "合成：未观测",
+      "state": "unknown"
+    }
+  },
+  "note": "unknown 语义",
+  "ruleset_id": "pipl-audit-2025",
+  "title": "未观测（unknown）不计违规也不进分母"
+}

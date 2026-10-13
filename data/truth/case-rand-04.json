@@ -1,0 +1,88 @@
+{
+  "case_id": "rand-04",
+  "expected": {
+    "also_expect_nonpass": [
+      "noncompliant",
+      "noncompliant",
+      "noncompliant",
+      "partial"
+    ],
+    "summary": "noncompliant",
+    "threshold_conclusions": [],
+    "triggered": false
+  },
+  "input_card": {
+    "automated_decision": true,
+    "cross_border_transfer": true,
+    "entrusted_processing": true,
+    "has_contingency_plan": true,
+    "has_internal_policy": false,
+    "has_processing_rules": true,
+    "has_training_plan": false,
+    "joint_processing": false,
+    "large_platform": false,
+    "minors_under_14": true,
+    "notice_before_processing": true,
+    "processes_public_info": true,
+    "provides_to_third_party": false,
+    "public_place_devices": false,
+    "publicizes_personal_info": false,
+    "rules_explanation_channel": true,
+    "security_incident_occurred": false,
+    "sensitive": true,
+    "transfer_event": false
+  },
+  "manual_results": {
+    "CHK-DOC-022": {
+      "note": "合成随机录入",
+      "state": "noncompliant"
+    },
+    "CHK-DOC-026": {
+      "note": "合成随机录入",
+      "state": "noncompliant"
+    },
+    "CHK-PRO-005": {
+      "note": "合成随机录入",
+      "state": "unknown"
+    },
+    "CHK-PRO-007": {
+      "note": "合成随机录入",
+      "state": "partial"
+    },
+    "CHK-PRO-008": {
+      "note": "合成随机录入",
+      "state": "not_applicable"
+    },
+    "CHK-PRO-013": {
+      "note": "合成随机录入",
+      "state": "compliant"
+    },
+    "CHK-PRO-014": {
+      "note": "合成随机录入",
+      "state": "partial"
+    },
+    "CHK-PRO-015": {
+      "note": "合成随机录入",
+      "state": "not_applicable"
+    },
+    "CHK-PRO-023": {
+      "note": "合成随机录入",
+      "state": "unknown"
+    },
+    "CHK-RES-025": {
+      "note": "合成随机录入",
+      "state": "not_applicable"
+    },
+    "CHK-TEC-009": {
+      "note": "合成随机录入",
+      "state": "unknown"
+    },
+    "CHK-TEC-011": {
+      "note": "合成随机录入",
+      "state": "partial"
+    }
+  },
+  "note": "seed=0x5EED5EED2026",
+  "ruleset_id": "pipl-audit-2025",
+  "title": "随机合成场景 #04"
+}

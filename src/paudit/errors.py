@@ -26,5 +26,16 @@ class PendingEntryError(RulesetError):
         )
 
 
+class UnattributedEntryError(RulesetError):
+    """status=verified 但缺出处（channel/checked_at）的条目。"""
+
+    def __init__(self, entries):
+        self.entries = list(entries)
+        super().__init__(
+            "以下条目 status=verified 但缺出处（channel/checked_at 为空），"
+            "不可追溯的『已核对』不得进入判定路径: " + ", ".join(str(e) for e in self.entries)
+        )
+
+
 class InputError(PauditError):
     """输入参数卡/底稿不可用。"""

@@ -1,0 +1,38 @@
+{
+  "case_id": "over-1m-no-officer",
+  "expected": {
+    "also_expect_nonpass": [
+      "noncompliant"
+    ],
+    "summary": "noncompliant",
+    "threshold_conclusions": [
+      "require_personal_info_officer"
+    ],
+    "triggered": true
+  },
+  "input_card": {
+    "automated_decision": false,
+    "cross_border_transfer": false,
+    "entrusted_processing": false,
+    "joint_processing": false,
+    "large_platform": false,
+    "minors_under_14": false,
+    "processes_public_info": false,
+    "provides_to_third_party": false,
+    "public_place_devices": false,
+    "publicizes_personal_info": false,
+    "scale": 1500000,
+    "security_incident_occurred": false,
+    "sensitive": false,
+    "transfer_event": false
+  },
+  "manual_results": {
+    "CHK-DOC-022": {
+      "note": "合成：未指定个人信息保护负责人",
+      "state": "noncompliant"
+    }
+  },
+  "note": "第十二条 op='>='；指引二十二",
+  "ruleset_id": "pipl-audit-2025",
+  "title": "100 万人以上未指定个人信息保护负责人 → 触发指定义务且判非合规"
+}

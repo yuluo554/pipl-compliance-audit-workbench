@@ -26,6 +26,9 @@ SUMMARY_NOT_ASSESSED = "not_assessed"
 # 适用项集合（进分母的状态）
 APPLICABLE_STATES = (STATE_COMPLIANT, STATE_PARTIAL, STATE_NONCOMPLIANT)
 
+# 单项全部合法状态（人工录入校验用）
+ALL_STATES = APPLICABLE_STATES + (STATE_NOT_APPLICABLE, STATE_UNKNOWN)
+
 
 @dataclass(frozen=True)
 class Source:
@@ -41,6 +44,10 @@ class Source:
             url=d.get("url", ""),
             checked_at=d.get("checked_at", ""),
         )
+
+    def is_attributed(self):
+        """出处是否可用：channel 与 checked_at 必填，url 可空（标准全文公开页需登录）。"""
+        return bool(self.channel and self.checked_at)
 
 
 @dataclass(frozen=True)
@@ -122,6 +129,7 @@ class CheckItem:
     evidence_required: bool = True
     only_if: Optional[dict] = None
     status: str = STATUS_PENDING
+    source: Source = field(default_factory=Source)
 
     @classmethod
     def from_dict(cls, d):
@@ -136,6 +144,7 @@ class CheckItem:
             evidence_required=d.get("evidence_required", True),
             only_if=d.get("only_if"),
             status=d.get("status", STATUS_PENDING),
+            source=Source.from_dict(d.get("source")),
         )
 
 
@@ -171,5 +180,22 @@ class Ruleset:
                 out.append("threshold:%s" % t.id)
         for c in self.checklist:
             if c.status != STATUS_VERIFIED:
+                out.append("checklist:%s" % c.id)
+        return out
+
+    def unattributed_entries(self):
+        """列出 status=verified 但缺出处（channel/checked_at 为空）的条目。
+
+        "已核对"必须可追溯：缺出处的 verified 条目视为未核对，不得进入判定路径。
+        """
+        out = []
+        for b in self.basis:
+            if b.status == STATUS_VERIFIED and not b.source.is_attributed():
+                out.append("basis:%s" % b.code)
+        for t in self.thresholds:
+            if t.status == STATUS_VERIFIED and not t.source.is_attributed():
+                out.append("threshold:%s" % t.id)
+        for c in self.checklist:
+            if c.status == STATUS_VERIFIED and not c.source.is_attributed():
                 out.append("checklist:%s" % c.id)
         return out

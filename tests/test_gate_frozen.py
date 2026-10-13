@@ -64,6 +64,34 @@ def test_generator_output_is_lf(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# G5b：合成场景生成器重跑 → 真值库逐字节一致
+# ---------------------------------------------------------------------------
+def test_scenario_generator_regenerates_byte_identical(tmp_path):
+    """把真值库写到临时目录，与仓库内 data/truth/ 逐字节比对。"""
+    r = subprocess.run(
+        [sys.executable, str(ROOT / "tools" / "gen_scenarios.py"), str(tmp_path)],
+        capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+
+    fresh_dir = tmp_path / "data" / "truth"
+    frozen_dir = ROOT / "data" / "truth"
+    fresh = {p.name: p.read_bytes() for p in sorted(fresh_dir.glob("*.json"))}
+    frozen = {p.name: p.read_bytes() for p in sorted(frozen_dir.glob("*.json"))}
+    assert fresh, "真值库为空：生成器未产出用例"
+    assert set(fresh) == set(frozen), \
+        "真值库文件集不一致，需重新生成: %s" % sorted(set(fresh) ^ set(frozen))
+    for name in fresh:
+        assert fresh[name] == frozen[name], "真值产物与冻结产物不一致: %s" % name
+
+
+def test_scenario_generator_output_is_lf(tmp_path):
+    subprocess.run([sys.executable, str(ROOT / "tools" / "gen_scenarios.py"), str(tmp_path)],
+                   check=True, capture_output=True)
+    for f in (tmp_path / "data" / "truth").glob("*.json"):
+        assert b"\r" not in f.read_bytes()
+
+
+# ---------------------------------------------------------------------------
 # G6：CI workflow 可解析 + 每 job 有 runs-on/steps
 # ---------------------------------------------------------------------------
 def _workflows():

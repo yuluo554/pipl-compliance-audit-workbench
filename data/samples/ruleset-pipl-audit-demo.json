@@ -38,6 +38,11 @@
       "id": "CHK-DEMO-001",
       "method": "auto",
       "only_if": null,
+      "source": {
+        "channel": "示例（合成值）",
+        "checked_at": "2026-10-13",
+        "url": ""
+      },
       "status": "verified",
       "title": "示例：已制定政策"
     },
@@ -54,6 +59,11 @@
       "id": "CHK-DEMO-002",
       "method": "auto",
       "only_if": null,
+      "source": {
+        "channel": "示例（合成值）",
+        "checked_at": "2026-10-13",
+        "url": ""
+      },
       "status": "verified",
       "title": "示例：撤回同意入口"
     },
@@ -74,6 +84,11 @@
           true
         ]
       },
+      "source": {
+        "channel": "示例（合成值）",
+        "checked_at": "2026-10-13",
+        "url": ""
+      },
       "status": "verified",
       "title": "示例：敏感信息加密"
     },
@@ -90,6 +105,11 @@
       "id": "CHK-DEMO-004",
       "method": "manual",
       "only_if": null,
+      "source": {
+        "channel": "示例（合成值）",
+        "checked_at": "2026-10-13",
+        "url": ""
+      },
       "status": "verified",
       "title": "示例：投诉渠道"
     }
