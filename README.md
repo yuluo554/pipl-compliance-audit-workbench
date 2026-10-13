@@ -208,8 +208,10 @@ spec 文本守门（不含禁区字面量）、构建后 dist 扫描。实测两
 | [plan/HANDOFF-M3.md](plan/HANDOFF-M3.md) | 交接快照（M2 → M3：证据链与整改） |
 | [plan/HANDOFF-M4.md](plan/HANDOFF-M4.md) | 交接快照（M3 → M4：内置基准） |
 | [plan/HANDOFF-M5.md](plan/HANDOFF-M5.md) | 交接快照（M4 → M5：桌面交付 + 报告导出） |
-| [plan/HANDOFF-M6.md](plan/HANDOFF-M6.md) | 下一棒交接快照（M5 → M6：脱敏发布 + Release） |
+| [plan/HANDOFF-M6.md](plan/HANDOFF-M6.md) | 交接快照（M5 → M6：脱敏发布 + Release） |
+| [plan/HANDOFF-M7.md](plan/HANDOFF-M7.md) | 交接快照（M6 → 后续：发布现状 / 后续可选迭代 / 环境坑） |
 | [docs/技术报告.md](docs/技术报告.md) | 技术报告（定位 / 架构 / 确定性内核 / 基准 / 桌面交付 / 门禁 / 局限） |
+| [docs/demo/](docs/demo/) | 演示素材（四页签截图 / GIF / CLI 基准卡片 / sha256 清单） |
 
 ## 限制与非目标
 

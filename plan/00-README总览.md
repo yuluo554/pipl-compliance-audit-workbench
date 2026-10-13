@@ -21,8 +21,10 @@
 | [HANDOFF-M3.md](HANDOFF-M3.md) | M3 交接快照（M2 → M3：证据链与整改） | ✅ M2 收尾落盘（已完成使命） |
 | [HANDOFF-M4.md](HANDOFF-M4.md) | M4 交接快照（M3 → M4：内置基准） | ✅ M3 收尾落盘（已完成使命） |
 | [HANDOFF-M5.md](HANDOFF-M5.md) | M5 交接快照（M4 → M5：桌面交付 + 报告导出） | ✅ M4 收尾落盘（已完成使命） |
-| [HANDOFF-M6.md](HANDOFF-M6.md) | M6 交接快照（M5 → M6：脱敏发布 + Release） | ✅ M5 收尾落盘 |
-| [../docs/技术报告.md](../docs/技术报告.md) | 技术报告（定位/架构/确定性内核/基准/桌面交付/门禁/局限） | ✅ M5 落盘 |
+| [HANDOFF-M6.md](HANDOFF-M6.md) | M6 交接快照（M5 → M6：脱敏发布 + Release） | ✅ M5 收尾落盘（已完成使命） |
+| [HANDOFF-M7.md](HANDOFF-M7.md) | M7 交接快照（M6 → 后续：发布后维护/迭代指引） | ✅ M6 收尾落盘 |
+| [../docs/技术报告.md](../docs/技术报告.md) | 技术报告（定位/架构/确定性内核/基准/桌面交付/门禁/局限） | ✅ M5 落盘（M6 补发布与 CI） |
+| [../docs/demo/](../docs/demo/) | 发布演示素材（四页签截图 + GIF + CLI 基准卡片 + sha256 清单） | ✅ M6 落盘 |
 
 ## 决策记录
 
@@ -55,4 +57,4 @@
 | M3 | 证据链与整改：证据挂载 + sha256 指纹固化 + 底稿导入导出 + 问题分级与整改台账 | ✅ 2026-10-13（DoD 见 [05](05-数据计划与里程碑.md)；证据/底稿/台账接入 CLI（G10 守门）、导入三重校验 + 往返一致性、台账可填可导出；双解释器 **142** 测试全绿；基准仍 **206/206**） |
 | M4 | 内置基准：门槛边界/检查项自洽/合成场景/四态判定覆盖四类扫描，指标进 README | ✅ 2026-10-13（DoD 见 [05](05-数据计划与里程碑.md)；四类套件一条命令跑全 **206/206**；三项门指标显式（触发判定 1.0000 / 四态 1.0000 / 误报率 0.0000，样本量 54/1092/982）并由 `bench --json` 给出；误报率口径固化在 `benchmark/cases.py`；新增 G11 指标门；双解释器 **159** 测试全绿） |
 | M5 | 桌面交付：PySide6 界面 + PyInstaller 打包 + 审计报告导出（MD/DOCX/XLSX）+ 技术报告 | ✅ 2026-10-13（DoD 见 [05](05-数据计划与里程碑.md)；PySide6 **四页签**（触发判定/检查单/证据链/报告导出）只消费引擎 API，界面拆为纯 Python 数据面 + Qt 装配层；PyInstaller **onedir 双 exe**（GUI + CLI）在干净目录实测可跑，版权红线**三重守门**（构建前抛错 + spec 守门 + dist 扫描）；报告 **MD/DOCX/XLSX** 三格式共用内容源、模板两版、**逐字节可复现**；技术报告入仓 [docs/技术报告.md](../docs/技术报告.md)；新增 G12 桌面交付门；双解释器 **210** 测试全绿、基准 **206/206**、脱敏 HARD=0） |
-| M6 | 脱敏发布 GitHub + Release（exe）+ 收尾固化 | ⬜ 待启动（下一棒，见 [HANDOFF-M6](HANDOFF-M6.md)） |
+| M6 | 脱敏发布 GitHub + Release（exe）+ 收尾固化 | ✅ 2026-10-14（DoD 见 [05](05-数据计划与里程碑.md)；**仓库已建** [pipl-compliance-audit-workbench](https://github.com/yuluo554/pipl-compliance-audit-workbench) 并首推；**CI 真跑**——首跑 run `38479282274` 失败（根因 Windows 运行器 cp1252 locale：中文输出/子进程解码崩），修复后复跑 run `38480212333` **三矩阵全绿**（windows py3.8 / windows py3.12 / ubuntu py3.12，各跑 pytest + `bench` 206/206）；四步脱敏审计 **HARD=0**；干净环境（`git archive` 树）逐字执行 README 全链跑通并**修掉 3 处真实缺陷**（README 引用不存在的输入夹具 ×2、缺 `[report]` extra 时报告用例硬失败、CI 未装 `[report]` 致可复现门静默跳过）；`v0.1.0` Release 附 onedir 双 exe 压缩包 + 演示 GIF/截图（4 附件），**下载 release 附件冻结态复核 206/206**；仓库 topics 8 个；README 状态行转正；新增 G13 发布面门（含 cp1252 行为回归）；双解释器 **227** 测试全绿） |
