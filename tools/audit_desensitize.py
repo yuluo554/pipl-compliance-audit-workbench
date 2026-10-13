@@ -95,17 +95,45 @@ def _scan_text(text, source_label, findings):
                 findings.append(("advisory", source_label, lineno, name))
 
 
+def _is_skipped(rel):
+    if any(p in ("/" + rel + "/") for p in SKIP_PARTS):
+        return True
+    if Path(rel).name in SKIP_FILES:
+        return True
+    return False
+
+
+def _git_tracked():
+    try:
+        out = subprocess.run(
+            ["git", "-c", "core.quotepath=false", "ls-files"],
+            cwd=str(ROOT), capture_output=True, text=True, check=True).stdout
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+        return None
+    return out.splitlines()
+
+
+def _fs_tracked():
+    """无 git 兜底（git archive 导出树）：按文件系统遍历，排除 venv/pycache 等。"""
+    out = []
+    for p in ROOT.rglob("*"):
+        if not p.is_file():
+            continue
+        rel = p.relative_to(ROOT).as_posix()
+        # 剪掉就地建的 venv（按特征 pyvenv.cfg 判定，而非目录名）
+        if (p.parent / "pyvenv.cfg").is_file() or (p.parent.parent / "pyvenv.cfg").is_file():
+            continue
+        out.append(rel)
+    return sorted(out)
+
+
 def _tracked_files():
-    out = subprocess.run(
-        ["git", "-c", "core.quotepath=false", "ls-files"],
-        cwd=str(ROOT), capture_output=True, text=True, check=True).stdout
-    for rel in out.splitlines():
+    listed = _git_tracked()
+    if listed is None:
+        listed = _fs_tracked()
+    for rel in listed:
         rel = rel.strip()
-        if not rel:
-            continue
-        if any(p in ("/" + rel + "/") for p in SKIP_PARTS):
-            continue
-        if Path(rel).name in SKIP_FILES:
+        if not rel or _is_skipped(rel):
             continue
         yield ROOT / rel, rel
 
