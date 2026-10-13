@@ -44,6 +44,7 @@
 | `Path.write_text(newline=)` 在 py3.8 报错 | `TypeError: write_text() got an unexpected keyword argument 'newline'`（该参数 3.10 才加） | 写 LF 文本一律用 `open(path, "w", encoding="utf-8", newline="\n")` |
 | `tomllib` 在 py<3.11 缺失 | 守门测试 G7 在 3.8 会 skip（削弱守门） | dev extra 加 `tomli>=2.0; python_version < '3.11'`，测试里 fallback 导入 |
 | openstd 标准页 JS 渲染 | 直接抓可能得空壳；标准列表经查询接口可读 | 用 `/bzgk/gb/index` 类查询接口或 cookie 会话；失败则标"待核对" |
+| **`git archive` 导出树无 `.git`** | 干净环境验证时 `git ls-files` 报 exit 128 → 脱敏审计器 tracked 扫描失败（M0 实抓） | 审计器加**无 git 兜底**（按文件系统遍历，按 `pyvenv.cfg` 特征剪 venv）；已修复并有守门测试 |
 
 ## 五、M0 DoD 逐项 checklist
 
