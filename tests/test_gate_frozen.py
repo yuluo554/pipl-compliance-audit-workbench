@@ -12,7 +12,8 @@ from conftest import ROOT
 # ---------------------------------------------------------------------------
 # G4：冻结产物不得出现 CR 字节（跨平台基准可复现前置）
 # ---------------------------------------------------------------------------
-FROZEN_GLOBS = ["data/rules/*.json", "data/samples/*.json", "data/truth/*.json"]
+FROZEN_GLOBS = ["data/rules/*.json", "data/samples/*.json", "data/truth/*.json",
+                "data/samples/*.txt"]
 
 
 def _frozen_files():
@@ -50,6 +51,11 @@ def test_generator_regenerates_byte_identical(tmp_path):
          ROOT / "data" / "samples" / "ruleset-pipl-audit-demo.json"),
         (tmp_path / "data" / "samples" / "card-demo.json",
          ROOT / "data" / "samples" / "card-demo.json"),
+        # 快速开始夹具（M6 补）：README 逐字执行链路的输入，同属生成器产物
+        (tmp_path / "data" / "samples" / "evidence-demo.txt",
+         ROOT / "data" / "samples" / "evidence-demo.txt"),
+        (tmp_path / "data" / "samples" / "ledger-demo.json",
+         ROOT / "data" / "samples" / "ledger-demo.json"),
     ]
     for fresh, frozen in pairs:
         assert fresh.read_bytes() == frozen.read_bytes(), \

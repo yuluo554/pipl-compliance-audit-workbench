@@ -5,6 +5,8 @@
 
 import json
 
+import pytest
+
 from conftest import AUTHORITATIVE_RULESET, DEMO_CARD, DEMO_RULESET
 from paudit.cli import main
 
@@ -273,6 +275,8 @@ def ledger_csv_lines(draft_path):
 # ---------------------------------------------------------------------------
 def test_report_exports_md_docx_xlsx(tmp_path):
     """report 子命令按扩展名分派三格式，均 exit 0 且产物非空。"""
+    pytest.importorskip("docx")
+    pytest.importorskip("openpyxl")
     draft = tmp_path / "draft.json"
     assert main(["check", str(DEMO_CARD), "--ruleset", str(DEMO_RULESET),
                  "--out", str(draft)]) == 1
@@ -327,6 +331,7 @@ def test_report_missing_extra_exit3(tmp_path, monkeypatch):
 
 def test_report_docx_byte_reproducible_via_cli(tmp_path):
     """同一底稿两次导出 DOCX 逐字节一致（M5 门：报告产物可复现）。"""
+    pytest.importorskip("docx")
     draft = tmp_path / "draft.json"
     assert main(["check", str(DEMO_CARD), "--ruleset", str(DEMO_RULESET),
                  "--out", str(draft)]) == 1

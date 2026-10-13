@@ -58,16 +58,18 @@ python -m paudit bench --ruleset data/samples/ruleset-pipl-audit-demo.json
 
 # 2) 试用单件审计（示例参数卡 → 底稿；挂证据固化 sha256）
 python -m paudit check data/samples/card-demo.json --ruleset data/samples/ruleset-pipl-audit-demo.json \
-    --out draft.json --draft --evidence "CHK-DEMO-001=证据文件.pdf" --evidence-owner 审计员A
+    --out draft.json --draft --evidence "CHK-DEMO-001=data/samples/evidence-demo.txt" --evidence-owner 审计员A
 
 # 3) 整改台账（填写责任人/期限/状态，并导出 CSV）
-python -m paudit ledger draft.json --apply ledger.json -o ledger.csv --write-draft draft2.json
+python -m paudit ledger draft.json --apply data/samples/ledger-demo.json -o ledger.csv --write-draft draft2.json
 
 # 4) 底稿导出（固化自指纹）→ 导入（三重校验 + 往返一致性）
 python -m paudit draft export draft2.json -o frozen.json --ruleset data/samples/ruleset-pipl-audit-demo.json
 python -m paudit draft import frozen.json --ruleset data/samples/ruleset-pipl-audit-demo.json
 
 # 5) 导出报告（.md / .docx / .xlsx，模板 self / third_party）
+#    DOCX/XLSX 需 report extra；Markdown 无需任何可选依赖
+python -m pip install -e ".[report]"
 python -m paudit report frozen.json --ruleset data/samples/ruleset-pipl-audit-demo.json \
     -o report.docx --template third_party
 
@@ -75,7 +77,7 @@ python -m paudit report frozen.json --ruleset data/samples/ruleset-pipl-audit-de
 python -m pip install -e ".[gui]"
 python -m paudit gui
 
-# 7) 跑全量测试
+# 7) 跑全量测试（[report]+[gui] 全装则 0 skip；只装 [dev] 时相关用例声明式跳过）
 python -m pytest -q
 ```
 

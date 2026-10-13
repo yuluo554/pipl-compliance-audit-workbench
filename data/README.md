@@ -10,10 +10,12 @@
 | data/rules/（审计规则包：依据×版本） | 规则包（检查项 + 门槛 + 条款引用 + 四态映射） | tools/gen_rulesets.py 固定模板生成，出处见 §二 | 自制（含条款号+要点引用） | ✅ M2 生效（26 检查项 + 4 门槛，全部 verified 挂出处；门槛带 `effect`，auto 项带 `auto_mapping`） |
 | data/checklists/（分层审计检查单） | 结构化检查项库 | 并入 ruleset.checklist（见 §一·1） | 自制 | ✅ M1 生效（四层：制度/流程/技术/响应） |
 | data/truth/（合成审计场景 + 真值库） | 合成数据 + 算例 | tools/gen_scenarios.py 生成（固定 seed） | 自制（完全虚构，非真实数据） | ✅ M4 增逐项真值（**42 例** × 26 项 = 1092 条逐项观测，见 §三·2/§三·3） |
+| data/samples/（示例规则包 + 参数卡 + 快速开始夹具） | 示例规则包 / 示例参数卡 / 示例证据 / 示例台账 | tools/gen_rulesets.py 生成 | 自制（合成，非真实数据） | ✅ M6 补快速开始夹具（`evidence-demo.txt`/`ledger-demo.json`，见 §三·1） |
 | data/knowledge/raw/（官方原文快照） | 依据快照 | 见 §二 | 官方公文/标准 | ✅ 已入 1 份（见 §二·2）；**M5 打包三重守门排除**（见 §一·5） |
 | 底稿 / 台账（运行时产物） | 审计底稿 JSON + 整改台账 CSV | 引擎编排产出（`check --draft` / `draft export` / `ledger`） | 自制（用户本地数据，**不入仓**） | ✅ M3 接入（自指纹 + 往返校验，见 §一·4） |
 | 报告产物（MD/DOCX/XLSX） | 审计报告三格式（模板两版） | `report/model.py` 内容源 + 三渲染器（`report <底稿> -o x.{md,docx,xlsx}`） | 自制（用户本地数据，**不入仓**） | ✅ M5 接入（共用内容源；DOCX/XLSX **逐字节可复现**，见 §一·5） |
 | 发行产物（onedir 双 exe） | PyInstaller 打包配置 + 数据白名单 | `tools/paudit-{cli,gui}.spec` + `tools/build_data.py`（白名单单一实现源） | 自制（构建产物 `dist/` **不入仓**） | ✅ M5 接入（版权红线三重守门，见 §一·5） |
+| Release 演示素材（PNG/GIF/清单） | 四页签截图 + 演示 GIF + CLI 基准卡片 + sha256 清单 | `tools/make_demo_assets.py` 离线合成 | 自制（用示例包与合成参数卡） | ✅ M6 入仓 `docs/demo/`（重跑逐字节一致，见 §一·6） |
 
 ### §一·1 检查单组织形态（M1 定）
 
@@ -101,6 +103,18 @@
 - **界面零判定**：GUI 只消费引擎 API（`gui/session.py` 为纯 Python 数据面，零 Qt、零判定逻辑），
   故界面与 CLI 结论不会漂移；挂证与台账填写**不改变**判定结论。
 
+### §一·6 发布演示素材（M6 定）
+
+- **离线合成**：`tools/make_demo_assets.py` 生成四页签截图、演示 GIF、CLI 基准卡片与
+  `MANIFEST.json`（逐产物 sha256）。全程零网络、零真实数据，一律用 `data/samples/` 示例包
+  与合成参数卡——**素材不构成任何合规结论**（示例包门槛值为合成值，非法规门槛）。
+- **可复现**：脚本零随机源、零系统时钟；实测两次运行六项产物 sha256 全同。
+- **入仓口径**：`docs/demo/` **入仓**（README 内联展示 + Release 附件复用）；素材为二进制
+  （`*.png`/`*.gif` 已在 `.gitattributes` 标 binary，避免 EOL 改写）。
+- **渲染坑（实录）**：Qt offscreen 后端无 fontconfig，**不显式注册 CJK 字体则中文全为豆腐块**
+  → 脚本按系统字体目录扫描并 `addApplicationFont`；CLI 卡片不能用 Consolas/Courier（纯 ASCII
+  等宽字体缺 CJK 字形），须用含中文的字库并按实测文本宽度定宽，否则右侧截断。
+
 ### §一·2 门槛规则（M1 定，逐条核对；M2 补义务类型）
 
 | 门槛 id | 条号 | 参数 | 算子 | 值 | 结论 | 义务类型（M2） | 边界归属 |
@@ -183,7 +197,15 @@
 | `data/rules/ruleset-pipl-audit-2025.json`（权威） | tools/gen_rulesets.py | `da8aa7a6c4044bef6fb562f5a91c3f0bb2ba9a40761c9c5b28f421a056aab81b` |
 | `data/samples/ruleset-pipl-audit-demo.json`（示例） | tools/gen_rulesets.py | `2941b48f2322935a13203beb96449921750038c09481fcffce71fd504392a0af` |
 | `data/samples/card-demo.json`（示例参数卡） | tools/gen_rulesets.py | `efb06dd27c418c82834c86d5b139a52add095f6c21b2d9a955b06069b94fc872` |
+| `data/samples/evidence-demo.txt`（示例证据，合成材料） | tools/gen_rulesets.py | `a6cb54b0a2350e73a686722985f173b8ae8f61dba6a775dbd3420d96a67db615` |
+| `data/samples/ledger-demo.json`（示例台账，`finding_id` 取自示例卡产出） | tools/gen_rulesets.py | `589c5725367f81a2d34ba33a66326f9c8253c9bcbd8804a0a3ad7cf54f275da5` |
 | `data/truth/`（42 例真值库，目录聚合指纹） | tools/gen_scenarios.py | `974cd90668e2da446885bb3e92c919653cecd6e3007b24eb5a393aa5a8f0ff9e` |
+
+> **M6 补两份快速开始夹具**：`evidence-demo.txt` / `ledger-demo.json` 为 README「快速开始」
+> 第 2/3 步的输入。此前 README 引用的 `证据文件.pdf`、`ledger.json` 两个文件**并不存在**——
+> 本地因工作目录残留未暴露，M6 干净环境（`git archive` 树）逐字执行时才断链；同批缺陷还会
+> 打挂首次 CI（报告类用例缺 `[report]` extra 时硬失败而非跳过，CI 已改装 `[dev,report]`）。
+> 现已由 `tools/gen_rulesets.py` 产出，并纳入 G5 逐字节守门 + G13「快速开始链路端到端」回归。
 
 > M4 只改**真值库**（`expected` 增逐项四态 `item_states`，供基准直接对账误报率/四态准确率）；
 > 规则包与示例包未动，指纹与 M3 一致。真值聚合指纹由 `bed435a8…`（M2/M3）变为 `974cd906…`（M4）。

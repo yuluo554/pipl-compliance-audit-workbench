@@ -1,0 +1,14 @@
+[
+  {
+    "due": "2026-12-31",
+    "finding_id": "F-001",
+    "owner": "合规负责人",
+    "status": "in_progress"
+  },
+  {
+    "due": "2026-11-30",
+    "finding_id": "F-002",
+    "owner": "安全工程师",
+    "status": "open"
+  }
+]

@@ -446,6 +446,26 @@ def build_demo_card():
     }
 
 
+def build_demo_evidence():
+    """示例证据文件正文（README 快速开始第二步挂证用；合成材料，非真实）。"""
+    return ("演示证据（合成材料，非真实）：示例企业隐私政策评审记录。\n"
+            "本文件仅用于演示证据链流程（仅登记文件名 + sha256，内容不入底稿）。\n")
+
+
+def build_demo_ledger():
+    """示例整改台账（README 快速开始第三步用）。
+
+    `finding_id` 取自示例参数卡的确定性产出（F-001/F-002），由 G13 守门断言可解析，
+    故改示例卡时会立即暴露耦合失效，而非静默指向未知 finding。
+    """
+    return [
+        {"finding_id": "F-001", "owner": "合规负责人", "due": "2026-12-31",
+         "status": "in_progress"},
+        {"finding_id": "F-002", "owner": "安全工程师", "due": "2026-11-30",
+         "status": "open"},
+    ]
+
+
 def _dump(data):
     """稳定序列化：键排序 + 缩进 2 + LF + 末尾换行。"""
     return json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
@@ -459,14 +479,27 @@ def _write(path, data):
     return path
 
 
+def _write_text(path, text):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(text)
+    return path
+
+
 def write_all(root):
-    """把三份冻结产物写到 root 下（root = 仓库根）。"""
+    """把冻结产物写到 root 下（root = 仓库根）。
+
+    三份规则/参数卡产物 + 两份示例实操夹具（证据文件 / 整改台账），
+    后者供 README 快速开始逐字执行（缺则链路断在挂证/台账两步）。
+    """
     root = Path(root)
     out = [
         _write(root / "data" / "rules" / ("ruleset-%s.json" % RULESET_ID), build_ruleset()),
         _write(root / "data" / "samples" / ("ruleset-%s.json" % DEMO_RULESET_ID),
                build_demo_ruleset()),
         _write(root / "data" / "samples" / "card-demo.json", build_demo_card()),
+        _write_text(root / "data" / "samples" / "evidence-demo.txt", build_demo_evidence()),
+        _write(root / "data" / "samples" / "ledger-demo.json", build_demo_ledger()),
     ]
     return out
 

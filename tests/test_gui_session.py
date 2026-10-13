@@ -113,7 +113,17 @@ def test_session_export_report_and_draft(demo_ruleset, demo_card, tmp_path):
     from conftest import DEMO_RULESET
 
     s = _build(demo_card, tmp_path, DEMO_RULESET)
-    for ext in ("md", "docx", "xlsx"):
+    # 三格式导出依赖 report extra；缺则只验 Markdown（核心层零依赖）。
+    # 本用例不整体 skip——底稿自指纹与台账 CSV 是**核心层**能力，
+    # 与重件无关，装不装 extra 都必须验到。
+    exts = ["md"]
+    try:
+        import docx  # noqa: F401
+        import openpyxl  # noqa: F401
+        exts += ["docx", "xlsx"]
+    except ImportError:
+        pass
+    for ext in exts:
         out = tmp_path / ("r.%s" % ext)
         s.export_report(str(out), template="self")
         assert out.is_file() and out.stat().st_size > 0
