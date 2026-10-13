@@ -79,6 +79,10 @@ BASIS = [
 #   边界归属：第四条"超过 1000 万人"= op ">"（不含等于）；
 #             第十二条"100 万人以上"= op ">="（含等于）；
 #             第五条（三）"100 万人以上 / 10 万人以上"= op ">="（含等于）。
+#   义务类型（effect，M2 三分判定）：
+#     periodic_obligation     周期性义务（处理者无条件，带频次）——第四条；
+#     standing_obligation     持续性义务（处理者无条件，无频次）——第十二条；
+#     conditional_institution 条件触发（保护部门"可以要求"，**非处理者无条件义务**）——第五条（三）。
 #   第五条（一）（二）为定性情形（较大风险 / 可能侵害众多个人权益），非数值门槛，不建模。
 # ---------------------------------------------------------------------------
 THRESHOLDS = [
@@ -88,6 +92,7 @@ THRESHOLDS = [
         "op": ">",
         "value": 10000000,
         "conclusion": "trigger_periodic_audit",
+        "effect": "periodic_obligation",
         "frequency": "每两年至少开展一次合规审计",
         "clause": {"basis": "网信办令第18号", "article": "第四条",
                    "point": "处理超过1000万人个人信息的处理者，应当每两年至少开展一次合规审计"},
@@ -101,6 +106,7 @@ THRESHOLDS = [
         "op": ">=",
         "value": 1000000,
         "conclusion": "require_personal_info_officer",
+        "effect": "standing_obligation",
         "frequency": "应当指定个人信息保护负责人",
         "clause": {"basis": "网信办令第18号", "article": "第十二条",
                    "point": "处理100万人以上个人信息的处理者应当指定个人信息保护负责人"},
@@ -115,6 +121,7 @@ THRESHOLDS = [
         "op": ">=",
         "value": 1000000,
         "conclusion": "may_require_professional_institution",
+        "effect": "conditional_institution",
         "frequency": "保护部门可以要求委托专业机构开展合规审计",
         "clause": {"basis": "网信办令第18号", "article": "第五条（三）",
                    "point": "发生个人信息安全事件，导致100万人以上个人信息泄露、篡改、丢失、毁损的，"
@@ -129,6 +136,7 @@ THRESHOLDS = [
         "op": ">=",
         "value": 100000,
         "conclusion": "may_require_professional_institution",
+        "effect": "conditional_institution",
         "frequency": "保护部门可以要求委托专业机构开展合规审计",
         "clause": {"basis": "网信办令第18号", "article": "第五条（三）",
                    "point": "发生个人信息安全事件，导致10万人以上敏感个人信息泄露、篡改、丢失、毁损的，"
@@ -273,15 +281,65 @@ _CHECKLIST_SPEC = [
 ]
 
 
-def _criteria(title, points, na):
-    return ("四态判定（%s）：逐项核对%s。全部满足=符合；部分满足=部分符合；均不满足=不符合；%s=不适用。"
-            % (title, points, na))
+def _criteria(title, points, absent_text, absent_verdict):
+    return ("四态判定（%s）：逐项核对%s。全部满足=符合；部分满足=部分符合；均不满足=不符合；%s=%s。"
+            % (title, points, absent_text, absent_verdict))
+
+
+# ---------------------------------------------------------------------------
+# 四态映射（auto_mapping）——auto 项的"取值 → 四态"规则，收进规则包（引擎零业务字面量）。
+#   取值词表（工具内部约定，非法规原文）：
+#     true / "complete"  全部满足 → compliant
+#     "partial"          部分满足 → partial
+#     false / "absent" / 空串    未制定或未采取 → noncompliant
+#     "not_required" / "not_applicable"  该情形不存在（法定免告知等）→ not_applicable
+#   M2 勘误：指引十九/二十/二十四原文为"**应当**制定内部管理制度/采取安全技术措施/制定应急预案"，
+#   属**无条件义务**，未制定 = **不符合**（不得记 not_applicable）；指引三未见"应当制定"表述，
+#   但缺处理规则即无法履行告知义务，同样记不符合。此处为 M1 的"未制定=不适用"口径勘误。
+# ---------------------------------------------------------------------------
+_COMPLETE = [True, "complete", "yes"]
+_ABSENT = [False, "absent", "no", ""]
+
+# 三态：全部满足=符合 / 部分满足=部分符合 / 其余（未制定未采取）=不符合
+_THREE_WAY = [
+    {"match": {"one_of": _COMPLETE}, "state": "compliant"},
+    {"match": {"equals": "partial"}, "state": "partial"},
+    {"match": {"default": True}, "state": "noncompliant"},
+]
+
+# 三态 + 免告知/场景不存在 → 不适用（仅用于原文确有"不适用情形"的项）
+def _three_way_na(na_tokens):
+    return [
+        {"match": {"one_of": _COMPLETE}, "state": "compliant"},
+        {"match": {"equals": "partial"}, "state": "partial"},
+        {"match": {"one_of": list(na_tokens)}, "state": "not_applicable"},
+        {"match": {"default": True}, "state": "noncompliant"},
+    ]
+
+
+# 指引序号 → auto_mapping 规则表
+AUTO_MAPPINGS = {
+    3: _THREE_WAY,                                        # 处理规则：未制定=不符合
+    4: _three_way_na(("not_required", "not_applicable")),  # 四（六）法定免告知 → 不适用
+    16: _three_way_na(("not_applicable",)),               # 不存在应予删除情形
+    17: _three_way_na(("not_applicable",)),               # 不存在行权申请
+    18: _three_way_na(("not_applicable",)),               # 不存在解释说明要求
+    19: _THREE_WAY,                                       # 应当制定内部管理制度
+    20: _THREE_WAY,                                       # 应当采取安全技术措施
+    21: _THREE_WAY,                                       # 培训计划的制定与实施
+    24: _THREE_WAY,                                       # 应当制定应急预案
+}
+
+# "未制定/未采取"记**不符合**（原文为无条件义务）的项：M1 口径"=不适用"勘误为"=不符合"
+_ABSENCE_IS_NONCOMPLIANT = (3, 19, 20, 21, 24)
 
 
 def _checklist():
     items = []
     for spec_no, cat, title, method, auto_field, only_if, points, na in _CHECKLIST_SPEC:
-        items.append({
+        # 缺项口径勘误：无条件义务项未制定=不符合（原文"应当制定/应当采取"，不得记不适用）
+        absent_verdict = "不符合" if spec_no in _ABSENCE_IS_NONCOMPLIANT else "不适用"
+        item = {
             "id": "CHK-%s-%03d" % (_CAT_CODE[cat], spec_no),
             "category": cat,
             "title": title,
@@ -289,12 +347,14 @@ def _checklist():
                        "point": title},
             "method": method,
             "auto_field": auto_field,
-            "criteria": _criteria(title, points, na),
+            "auto_mapping": AUTO_MAPPINGS.get(spec_no),
+            "criteria": _criteria(title, points, na, absent_verdict),
             "evidence_required": True,
             "only_if": only_if,
             "status": "verified",
             "source": dict(_CAC),
-        })
+        }
+        items.append(item)
     return items
 
 
@@ -332,11 +392,14 @@ def build_demo_ruleset():
         ],
         "thresholds": [
             {"id": "TH-DEMO-PERIODIC", "param": "scale", "op": ">=", "value": 5000,
-             "conclusion": "trigger_periodic_audit", "frequency": "每两年至少一次（示例）",
+             "conclusion": "trigger_periodic_audit", "effect": "periodic_obligation",
+             "frequency": "每两年至少一次（示例）",
              "clause": {"basis": "示例依据A", "article": "示例条1", "point": "示例门槛一"},
              "severity": 1, "status": "verified", "source": dict(_DEMO_SRC)},
             {"id": "TH-DEMO-INSTITUTION", "param": "scale", "op": ">=", "value": 50000,
-             "conclusion": "require_professional_institution", "frequency": "更高频次（示例）",
+             "conclusion": "require_professional_institution",
+             "effect": "conditional_institution",
+             "frequency": "更高频次（示例）",
              "clause": {"basis": "示例依据A", "article": "示例条2", "point": "示例门槛二"},
              "severity": 2, "status": "verified", "source": dict(_DEMO_SRC)},
         ],

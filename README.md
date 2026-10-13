@@ -1,7 +1,7 @@
 # 个人信息保护合规审计工作台（pipl-compliance-audit-workbench）
 
 > **本地目录** `10-13-pipl-compliance-audit-workbench`（`10-13` = 2026-10-13 日期标签）。**GitHub 仓库名** = `pipl-compliance-audit-workbench`（纯净名）。
-> **状态**：🚧 **M1 数据先行完成（2026-10-13）**——权威规则包已逐条核对生效（26 检查项 + 4 门槛全 `verified`），合成审计场景真值库 **39 例**。下一棒 M2（门槛/检查单引擎细化）。
+> **状态**：🚧 **M5 桌面交付 + 报告导出收口完成（2026-10-13）**——PySide6 **四页签**桌面应用（只消费引擎 API）、PyInstaller **onedir 双 exe**（GUI + CLI，版权红线三重守门）、报告导出 **MD/DOCX/XLSX**（模板两版，**逐字节可复现**）、技术报告入仓 [docs/技术报告.md](docs/技术报告.md)。真值库 **42 例**、基准 **206/206**、双解释器 **210 passed**、脱敏审计 HARD=0。下一棒 M6（脱敏发布 GitHub + Release）。
 
 把「**是否触发审计义务 → 逐项怎么查 → 查到问题怎么留证 → 怎么出报告**」整条链做成**规则化、可复现、证据可追溯**的本地工作台（Windows 桌面 + CLI 双形态，全本地、零上传、默认不联网）。
 
@@ -16,13 +16,16 @@ LLM 聊天给不了持久检查单、结构化底稿与证据指纹；本工具�
 ## 核心特性
 
 - **确定性门槛引擎**：按处理规模/敏感信息/处理者类型判定是否触发审计义务、适用频次、是否须指定负责人；结论旁挂**条款依据**（办法第四条/第五条/第十二条）；门槛值一律从规则包读取，引擎源码零门槛字面量。
+  **三分判定**：无条件义务（周期性/持续性，处理者自身义务）与**条件触发**（保护部门"可以要求"，非处理者无条件义务）**分栏呈现**，结论不混同。
 - **版本化审计规则集**：规则包按 `依据文件 × 版本` 组织、JSON 化、生成器产出、禁手改；条款变更即升版本；切换版本即切换检查单与门槛值。
-- **审计检查单引擎**：以办法附件《审计指引》**27 项审查要点**为骨架，分制度/流程/技术/响应四层；支持自动核查项与人工核查项。
+- **审计检查单引擎**：以办法附件《审计指引》**27 项审查要点**为骨架，分制度/流程/技术/响应四层；支持自动核查项与人工核查项。自动核查项的"取值 → 四态"映射**收进规则包**（`auto_mapping`），引擎零业务字面量；《指引》中"应当制定/应当采取"类**无条件义务项未制定即判不符合**（不误记"不适用"）。
 - **判定语义分层**（不误报合规）：`compliant`/`partial`/`noncompliant`/`not_applicable`（不适用）+ `unknown`（未观测）；**一条都不适用或都没评 → `not_assessed`（未评估），绝不输出 `compliant`**。
-- **证据链留痕**：结论挂本地证据引用 + **sha256 指纹**固化进底稿；底稿导出产物自身也挂指纹（"底稿被改动即可检出"）；底稿可整体导出/导入，支持跨会话续做。
-- **问题分级与整改台账**：高风险/中风险/低风险/建议，分级挂条款依据；整改台账可导出。
-- **报告导出**：Markdown（核心零依赖）+ DOCX/XLSX（可选）；报告头固定输出**规则包坐标**；模板可配置（企业自审版 / 第三方机构版）。
-- **内置评测基准**：门槛边界 / 检查项自洽 / 合成场景三类，零 API 依赖可重复，一条命令跑全。
+- **证据链留痕**：结论挂本地证据引用 + **sha256 指纹**固化进底稿；底稿导出产物自身也挂指纹（"底稿被改动即可检出"）；底稿可整体导出/导入，**导入三重校验**（自指纹 + `schema_version` + `ruleset_id`）+ **往返一致性**（离线重算结论须与底稿一致）；`evidence --check` 可复核证据文件指纹。证据仅登记文件名与指纹，**不落真实内容副本**。
+- **问题分级与整改台账**：高风险/中风险（挂条款依据），台账可填 `owner`/`due`/`status`（待整改/整改中/已整改/已豁免）并导出 CSV；台账**只补责任落实，不覆写**分级与依据。
+- **报告导出（三格式、模板两版、可复现）**：Markdown（核心零依赖）+ DOCX/XLSX（可选 extra）；三格式共用**单一内容源**（`report/model.py`），故同一底稿在三产物里结论一致；报告头固定输出**规则包坐标**；模板可配置（企业自审版 / 第三方机构版）。DOCX/XLSX 落盘后经 `report/docxutil.py` 统一收口（固定 zip 时间戳 + `create_system=0` + 固定 core.xml 时间戳），**逐字节可复现**。
+- **桌面应用（PySide6，四页签）**：触发判定 / 检查单 / 证据链 / 报告导出；界面拆为**纯 Python 数据面**（`gui/session.py`，零 Qt、可无头测试）与 **Qt 装配层**，**只消费引擎 API、零判定逻辑**。
+- **发行形态（PyInstaller onedir 双 exe）**：GUI 与 CLI 各一个 onedir 产物；数据白名单由 `tools/build_data.py` 单一实现源展开，**版权红线三重守门**（构建前抛错 + spec 文本守门 + 构建后 dist 扫描）。
+- **内置评测基准**：门槛边界 / 检查项自洽 / 合成场景 / 四态判定覆盖四类，零 API 依赖可重复，一条命令跑全。
 
 ## 架构
 
@@ -34,12 +37,12 @@ flowchart TD
     PIPE --> CHK[engine/checklist 四态判定]
     PIPE --> RULES[rules/loader 规则加载 + status 门控]
     PIPE --> EV[evidence/ 证据链 sha256]
-    PIPE --> REP[report/markdown 报告]
+    PIPE --> REP[report/ 内容源 + MD/DOCX/XLSX 渲染]
     RULES --> DATA[(data/ 规则包 冻结产物)]
     BENCH[benchmark/ 基准] --> PIPE
 ```
 
-**分层纪律**：表现层（cli/gui）零判定逻辑，只调引擎；`effective_ruleset()` 是唯一生效门，`status=pending` 条目在此被拒；核心层仅标准库，不 import PySide6/docx/openpyxl（AST 静态守门）。
+**分层纪律**：表现层（cli/gui）零判定逻辑，只调引擎；`effective_ruleset()` 是唯一生效门，`status=pending` 条目在此被拒；严格核心层仅标准库，不 import PySide6/docx/openpyxl（AST 静态守门 G3）。GUI 与 DOCX/XLSX 渲染器属**惰性边界层**，重件只在函数体内导入，故未装 extra 时核心通路仍可跑。
 
 ## 快速开始
 
@@ -53,14 +56,35 @@ python -m pip install -e ".[dev]"
 # 1) 跑内置基准（用示例规则包，验证工具链路）
 python -m paudit bench --ruleset data/samples/ruleset-pipl-audit-demo.json
 
-# 2) 试用单件审计（示例参数卡 → 结论）
-python -m paudit check data/samples/card-demo.json --ruleset data/samples/ruleset-pipl-audit-demo.json --out draft.json
+# 2) 试用单件审计（示例参数卡 → 底稿；挂证据固化 sha256）
+python -m paudit check data/samples/card-demo.json --ruleset data/samples/ruleset-pipl-audit-demo.json \
+    --out draft.json --draft --evidence "CHK-DEMO-001=证据文件.pdf" --evidence-owner 审计员A
 
-# 3) 导出报告
-python -m paudit report draft.json --ruleset data/samples/ruleset-pipl-audit-demo.json -o report.md
+# 3) 整改台账（填写责任人/期限/状态，并导出 CSV）
+python -m paudit ledger draft.json --apply ledger.json -o ledger.csv --write-draft draft2.json
 
-# 4) 跑全量测试
+# 4) 底稿导出（固化自指纹）→ 导入（三重校验 + 往返一致性）
+python -m paudit draft export draft2.json -o frozen.json --ruleset data/samples/ruleset-pipl-audit-demo.json
+python -m paudit draft import frozen.json --ruleset data/samples/ruleset-pipl-audit-demo.json
+
+# 5) 导出报告（.md / .docx / .xlsx，模板 self / third_party）
+python -m paudit report frozen.json --ruleset data/samples/ruleset-pipl-audit-demo.json \
+    -o report.docx --template third_party
+
+# 6) 启动桌面应用（四页签：触发判定 / 检查单 / 证据链 / 报告导出）
+python -m pip install -e ".[gui]"
+python -m paudit gui
+
+# 7) 跑全量测试
 python -m pytest -q
+```
+
+**打包发行（onedir 双 exe）**：
+
+```bash
+python -m pip install -e ".[gui,report,pkg]"
+python -m PyInstaller tools/paudit-cli.spec --noconfirm   # dist/paudit-cli/paudit-cli.exe
+python -m PyInstaller tools/paudit-gui.spec --noconfirm   # dist/paudit-gui/paudit-gui.exe
 ```
 
 > **注意**：`data/samples/` 是**示例规则包**（门槛值为合成示例值，**非法规门槛**），仅用于试用工具流程与演示，**不得据以作出任何合规结论**。权威规则包在 `data/rules/`，M1 已逐条挂原文核对生效（26 检查项 + 4 门槛全 `verified`，见 [data/README.md](data/README.md) §一/§二）。
@@ -69,20 +93,76 @@ python -m pytest -q
 
 | 子命令 | 作用 | 退出码 |
 |---|---|---|
-| `check <参数卡>` | 单件审计（门槛 + 检查单） | 0=全部符合 / 1=检出非合规或未评估 / 2=输入不可用 |
-| `bench [--ruleset R]` | 跑内置基准 | 0=达标 / 1=未达标或门控拦截 / 2=用法错误 |
-| `report <底稿> -o <输出>` | 导出报告（.md） | 0=完成 / 2=输入不可用 |
+| `check <参数卡>` | 单件审计（门槛 + 检查单）；`--draft` 以底稿形态导出；`--evidence 检查项=文件` 挂证 | 0=全部符合 / 1=检出非合规或未评估 / 2=输入不可用 |
+| `bench [--ruleset R] [--json]` | 跑内置基准（`--json` 输出指标 `metrics` 与门值 `gates`） | 0=达标 / 1=未达标或门控拦截 / 2=用法错误 |
+| `report <底稿> -o <输出>` | 导出报告（`.md` / `.docx` / `.xlsx`），`--template self|third_party` | 0=完成 / 2=输入不可用 / 3=缺文档导出依赖 |
+| `evidence <底稿> --add 检查项=文件` | 证据挂载（sha256 固化）；`--check` 复核已挂证据指纹 | 0=完成 / 1=指纹不匹配 / 2=输入不可用 |
+| `draft export <输入> -o <底稿>` | 导出底稿并固化自指纹（写 `.evidence.json`） | 0=完成 / 2=输入不可用 |
+| `draft import <底稿>` | 导入底稿：校验自指纹/schema/ruleset + 往返一致性 | 0=通过 / 1=结论漂移 / 2=校验不通过 |
+| `ledger <底稿> [--apply 台账] [-o out.csv]` | 整改台账填写 / 导出（CSV） | 0=完成 / 2=输入不可用 |
 | `gui` | 启动桌面应用（缺依赖 exit 3） | 0 / 2 / 3 |
 
 ## 评测基准
 
-| 基准 | 内容 | 指标 |
-|---|---|---|
-| B1 门槛边界 | 门槛值 ±1 人枚举（恰好等于/上下 1 人） | 判定正确率 |
-| B2 检查项自洽 | 条款引用完整性、id 唯一性 | 断言通过率 |
-| B3 合成审计场景 | 真值库对账（触发判定/四态判定） | 准确率 / 误报率 |
+四类套件（B1 门槛边界 / B2 检查项自洽 / B3 合成场景 / B4 四态判定覆盖）由 `python -m paudit bench` **一条命令跑全**，零 API 依赖、可重复；权威规则包上 **206/206**、全量单次约 **0.08 秒**（含解释器启动）。
 
-> M1 状态：B1/B2/B3 在**权威规则包**上全绿（B1 12/12 门槛边界、B2 26/26 检查项自洽、B3 **39/39** 合成场景真值对账）；示例规则包上 B3 如实标注"该类用例未生成"（示例包无匹配真值库）。
+| 基准 | 内容 | 断言数 | 指标 |
+|---|---|---|---|
+| B1 门槛边界 | 门槛值 ±1 人枚举（恰好等于/上下 1 人）+ 义务类型分栏核对 | 18 | 触发判定正确率 |
+| B2 检查项自洽 | 条款引用完整性、id 唯一性 | 26 | 断言通过率 |
+| B3 合成审计场景 | 真值库对账（触发判定/四态判定/门槛分栏结论） | 42 | 触发判定准确率 / 四态准确率 / 误报率 |
+| B4 四态判定覆盖 | auto 映射词表逐值核对（引擎 vs 独立实现）+ 缺项口径回归锁 + 汇总语义 | 120 | 映射一致率 |
+
+**实测指标（权威规则包，`bench --json` 的 `metrics` 字段）**：
+
+| 指标 | 实测值 | 样本量 | 门值 | 达标 |
+|---|---|---|---|---|
+| 触发判定准确率 `trigger_accuracy` | **1.0000** | 54（B1 边界 12 + B3 场景 42） | ≥ 0.95 | ✅ |
+| 四态准确率 `state_accuracy` | **1.0000** | 1092（42 场景 × 26 检查项逐项对账） | ≥ 0.95 | ✅ |
+| 误报率 `false_positive_rate` | **0.0000** | 982（真值非问题项数；分母口径见下） | = 0 | ✅ |
+| 漏报率 `miss_rate`（参考） | **0.0000** | 110（真值问题项数） | — | — |
+| auto 映射一致率 `mapping_accuracy`（参考） | **1.0000** | 90（9 auto 项 × 10 探针值） | — | — |
+
+> **误报率口径（唯一实现源 `benchmark/cases.py` 的 `confusion()`）**：以**二元"问题"口径**逐项比对——
+> **问题 = `partial` ∪ `noncompliant`**；`compliant`/`not_applicable`/`unknown` 均视为"非问题"（不构成判错）。
+> **误报 FP** = 真值非问题而引擎判问题（引擎多报）；**误报率 = FP ÷ 真值非问题项数**；
+> **漏报 FN** 反之，**漏报率 = FN ÷ 真值问题项数**（分母为 0 时记 0）。真值取真值库冻结的
+> `expected.item_states`（**生成期由 `cases.expected_item_states()` 独立推导，非引擎计算**），
+> 故"引擎判对"是两套独立实现互验的结果，而非自证。
+
+> 示例规则包（`data/samples/`）无匹配真值库 → B3 如实标注"该类用例未生成"，指标样本量相应减少；门禁对**无样本**指标不阻塞（"无证据"≠"不达标"），权威包三指标样本量均 > 0，故为强约束。
+
+> M2 状态：B1/B2/B3/B4 在**权威规则包**上全绿（B1 18/18、B2 26/26、B3 **42/42** 合成场景真值对账、B4 120/120；**合计 206/206**）；示例规则包上 B3 如实标注"该类用例未生成"（示例包无匹配真值库）。
+
+## 桌面应用与报告导出（M5）
+
+**桌面应用**分四页签，只消费引擎 API（零判定逻辑）：
+
+| 页签 | 内容 |
+|---|---|
+| 触发判定 | 门槛结论 + 频次 + **义务分栏**（无条件义务 / 条件触发，不得混同） |
+| 检查单 | 全项四态 + 说明 + 条款依据 |
+| 证据链 | 挂证（仅登记文件名 + sha256）；整改台账三字段可编辑（只补责任落实，不改结论） |
+| 报告导出 | MD/DOCX/XLSX + 模板两版；导出底稿（固化自指纹）与台账 CSV |
+
+界面拆为**纯 Python 数据面** `gui/session.py`（零 Qt 依赖，可用普通 pytest 无头覆盖）与
+**Qt 装配层** `gui/main_window.py`（重件只在函数体内导入）。因此业务正确性由无头测试守住，
+GUI 冒烟只验"能构建、能渲染"。
+
+**报告导出**三格式共用单一内容源 `report/model.py`，故同一底稿在三产物里结论一致：
+
+| 产物 | 渲染器 | 确定性收口 |
+|---|---|---|
+| `.md` | `report/markdown.py`（核心层，零依赖） | 无系统时间戳 |
+| `.docx` | `report/docx.py`（optional extra） | `report/docxutil.py`：固定 zip 时间戳 + `create_system=0` + 固定 core.xml 时间戳 |
+| `.xlsx` | `report/xlsx.py`（optional extra） | 同上（openpyxl 在 save 时才覆盖时间戳，故必须落盘后收口） |
+
+实测六种"格式 × 模板"组合**逐字节可复现**（含跨时间间隔的两次导出）。
+
+**发行形态**：PyInstaller onedir 双 exe（`tools/paudit-cli.spec` / `tools/paudit-gui.spec`）。
+数据白名单由 `tools/build_data.py` 单一实现源展开，**版权红线三重守门**——构建前命中禁区即抛错、
+spec 文本守门（不含禁区字面量）、构建后 dist 扫描。实测两个 exe 在**干净目录**独立运行，
+产物树内 `data/` 只含 `rules/`、`samples/`、`truth/`，无官方原文快照。
 
 ## 数据与依据
 
@@ -101,7 +181,11 @@ python -m pytest -q
 | [plan/04-模块详设.md](plan/04-模块详设.md) | 规则包 schema / 判定语义 / 门禁 |
 | [plan/05-数据计划与里程碑.md](plan/05-数据计划与里程碑.md) | 数据入库策略 / M0–M6 DoD |
 | [plan/06-决策记录.md](plan/06-决策记录.md) | 重大决策表 / 本机环境坑 |
-| [plan/HANDOFF-M1.md](plan/HANDOFF-M1.md) | 下一里程碑交接快照 |
+| [plan/HANDOFF-M3.md](plan/HANDOFF-M3.md) | 交接快照（M2 → M3：证据链与整改） |
+| [plan/HANDOFF-M4.md](plan/HANDOFF-M4.md) | 交接快照（M3 → M4：内置基准） |
+| [plan/HANDOFF-M5.md](plan/HANDOFF-M5.md) | 交接快照（M4 → M5：桌面交付 + 报告导出） |
+| [plan/HANDOFF-M6.md](plan/HANDOFF-M6.md) | 下一棒交接快照（M5 → M6：脱敏发布 + Release） |
+| [docs/技术报告.md](docs/技术报告.md) | 技术报告（定位 / 架构 / 确定性内核 / 基准 / 桌面交付 / 门禁 / 局限） |
 
 ## 限制与非目标
 

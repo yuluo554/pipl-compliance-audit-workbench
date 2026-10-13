@@ -1,10 +1,22 @@
-"""证据链：sha256 指纹 + 底稿导出/导入（核心层，仅标准库）。"""
+"""证据链：sha256 指纹 + 底稿导出/导入（核心层，仅标准库）。
+
+纪律：
+- 证据只登记**结构说明 + 指纹**（`file_ref` 仅文件名，路径不入底稿正文）；
+- 底稿导出产物自指纹（`draft_sha256`）固化在同名 `.evidence.json` 随附文件；
+- 导入时校验自指纹 + `schema_version` + `ruleset_id`，不匹配即**显式报错**（不静默降级）。
+"""
 
 import hashlib
 import json
 from pathlib import Path
 
+from ..errors import InputError
+
 DRAFT_SCHEMA_VERSION = "1.0"
+
+
+class DraftError(InputError, ValueError):
+    """底稿校验失败（同时是 ValueError，兼容既有调用方的捕获口径）。"""
 
 
 def sha256_file(path):
@@ -18,6 +30,16 @@ def sha256_file(path):
 
 def sha256_bytes(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def draft_body_digest(data):
+    """底稿正文指纹：键排序 + 缩进 2 + 不含 `draft_sha256` 自身。
+
+    导出与导入共用本函数（单一实现源），避免两侧序列化口径漂移。
+    """
+    payload = {k: v for k, v in data.items() if k != "draft_sha256"}
+    body = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
+    return sha256_bytes(body.encode("utf-8"))
 
 
 class Evidence:
@@ -81,6 +103,16 @@ def attach_evidence(draft, item_id, file_path, source="", collected_at="", owner
     return ev
 
 
+def verify_evidence_record(record, file_path):
+    """核对某条证据记录的指纹与给定文件是否一致。"""
+    return record.get("sha256") == sha256_file(file_path)
+
+
+def has_item(draft, item_id):
+    """底稿中是否存在该检查项（供 CLI 挂证前校验，防挂到未知项）。"""
+    return any(it.get("item_id") == item_id for it in draft.get("item_results", []))
+
+
 def _next_evidence_id(draft):
     n = 0
     for it in draft.get("item_results", []):
@@ -95,11 +127,10 @@ def write_lf_text(path, text):
 
 
 def export_draft(draft, out_path):
-    """导出底稿：无时间戳、LF 行尾，附底稿自指纹。"""
+    """导出底稿：无时间戳、LF 行尾、键排序，附底稿自指纹。"""
     payload = dict(draft)
     payload["schema_version"] = DRAFT_SCHEMA_VERSION
-    body = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
-    digest = sha256_bytes(body.encode("utf-8"))
+    digest = draft_body_digest(payload)
     payload["draft_sha256"] = digest
     body = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
     write_lf_text(out_path, body)
@@ -111,13 +142,73 @@ def export_draft(draft, out_path):
     return digest
 
 
-def import_draft(path):
-    """导入底稿并校验自指纹。"""
+def import_draft(path, expect_ruleset_id=None, expect_schema_version=None):
+    """导入底稿并校验自指纹 + schema_version + ruleset_id（不匹配即显式报错）。"""
     p = Path(path)
-    data = json.loads(p.read_text(encoding="utf-8"))
-    recorded = data.pop("draft_sha256", None)
-    body = json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True)
-    actual = sha256_bytes(body.encode("utf-8"))
+    if not p.is_file():
+        raise DraftError("底稿文件不存在: %s" % p)
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        raise DraftError("底稿 JSON 解析失败: %s (%s)" % (p, exc))
+
+    recorded = data.get("draft_sha256")
+    actual = draft_body_digest(data)
     if recorded is not None and recorded != actual:
-        raise ValueError("底稿指纹不匹配（文件可能被改动）")
+        raise DraftError("底稿指纹不匹配（文件可能被改动）")
+
+    schema = data.get("schema_version")
+    if expect_schema_version is not None and schema != expect_schema_version:
+        raise DraftError("底稿 schema_version 不匹配: 期望 %s，实际 %s"
+                         % (expect_schema_version, schema))
+
+    rid = draft_ruleset_id(data)
+    if expect_ruleset_id is not None and rid != expect_ruleset_id:
+        raise DraftError("底稿 ruleset_id 不匹配: 期望 %s，实际 %s"
+                         % (expect_ruleset_id, rid))
+
+    data.pop("draft_sha256", None)
     return data
+
+
+def draft_ruleset_id(data):
+    """读底稿的规则包身份键（兼容顶层扁平与旧版嵌套 `ruleset` 形态）。"""
+    if data.get("ruleset_id"):
+        return data["ruleset_id"]
+    nested = data.get("ruleset") or {}
+    return nested.get("ruleset_id", "")
+
+
+def draft_conclusion(draft):
+    """底稿中可离线复核的结论指纹：汇总 + 四态计数（不含证据/台账字段）。
+
+    只取判定结论相关字段——证据挂载与台账填写**不改变**结论，
+    故"重算结论一致"断言据此比对，不受这两类编辑干扰。
+    """
+    return {
+        "summary": draft.get("summary"),
+        "counts": draft.get("counts", {}),
+        "states": {it.get("item_id"): it.get("state")
+                   for it in draft.get("item_results", [])},
+        "threshold_triggered": (draft.get("threshold_result") or {}).get("triggered"),
+    }
+
+
+def verify_draft_consistency(draft, ruleset):
+    """往返一致性：用底稿保存的输入重算结论，与底稿记录结论比对。
+
+    底稿自足（保存 `input_card`/`manual_results`/`ruleset_id`）故可离线重算。
+    返回 `(ok, detail)`；不一致时 detail 说明差异字段。
+    """
+    from ..engine.pipeline import AuditRequest, compute_audit
+
+    recomputed = compute_audit(
+        AuditRequest(draft.get("input_card", {}), draft.get("manual_results", {}),
+                     draft.get("audit_scope", {})),
+        ruleset).to_dict()
+    expected = draft_conclusion(draft)
+    actual = draft_conclusion(recomputed)
+    if expected == actual:
+        return True, ""
+    diffs = [k for k in expected if expected[k] != actual.get(k)]
+    return False, "重算结论与底稿不一致: %s" % ", ".join(diffs)

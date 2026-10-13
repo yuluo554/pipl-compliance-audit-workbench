@@ -28,7 +28,14 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
-from paudit.benchmark.cases import apply_op, expected_summary, observed_nonpass  # noqa: E402
+from paudit.benchmark.cases import (  # noqa: E402
+    apply_op,
+    effect_rank,
+    expected_item_states,
+    expected_summary,
+    observed_nonpass,
+    split_effect,
+)
 from paudit.rules.model import ALL_STATES  # noqa: E402
 
 GENERATED_AT = "2026-10-13T00:00:00Z"
@@ -63,9 +70,10 @@ def _load_ruleset():
 
 
 def _mirrors(rs):
-    """从规则包派生：检查项 id 序列、自动字段、门控、门槛清单。"""
+    """从规则包派生：检查项 id 序列、自动字段、自动映射、门控、门槛清单。"""
     item_ids = [c["id"] for c in rs["checklist"]]
     auto = {c["id"]: c["auto_field"] for c in rs["checklist"] if c["method"] == "auto"}
+    auto_map = {c["id"]: (c.get("auto_mapping") or []) for c in rs["checklist"]}
     gates = {}
     for c in rs["checklist"]:
         if c.get("only_if"):
@@ -73,58 +81,52 @@ def _mirrors(rs):
             gates[c["id"]] = (key, tuple(allowed))
     thresholds = [
         {"id": t["id"], "param": t["param"], "op": t["op"], "value": t["value"],
-         "conclusion": t["conclusion"], "severity": t["severity"]}
+         "conclusion": t["conclusion"], "severity": t["severity"],
+         "effect": t.get("effect", "standing_obligation")}
         for t in rs["thresholds"]
     ]
     manual_ids = [c["id"] for c in rs["checklist"] if c["method"] == "manual"]
-    return item_ids, auto, gates, thresholds, manual_ids, rs["ruleset_id"]
+    return (item_ids, auto, gates, thresholds, manual_ids, rs["ruleset_id"], auto_map,
+            rs["checklist"])
 
 
 # ---------------------------------------------------------------------------
 # 独立真值计算（与引擎互验）
 # ---------------------------------------------------------------------------
-def _item_truth(item_id, card, manual, auto, gates):
-    gate = gates.get(item_id)
-    if gate is not None:
-        key, allowed = gate
-        if card.get(key) not in allowed:
-            return "not_applicable"
-    field = auto.get(item_id)
-    if field is not None:
-        if field not in card:
-            return "unknown"
-        val = card[field]
-        return "compliant" if (val is True or (isinstance(val, str) and val.strip())) else "noncompliant"
-    rec = manual.get(item_id)
-    if rec is None:
-        return "unknown"
-    state = rec.get("state", "unknown")
-    return state if state in ALL_STATES else "unknown"
-
-
 def _threshold_truth(card, thresholds):
     matched = []
     for t in thresholds:
         if t["param"] in card and apply_op(t["op"], card[t["param"]], t["value"]):
-            matched.append((t["severity"], t["conclusion"]))
-    matched.sort(key=lambda x: x[0], reverse=True)
+            matched.append(t)
+    matched.sort(key=lambda t: (-t["severity"], effect_rank(t), t["id"]))
     conclusions, seen = [], set()
-    for _, c in matched:
-        if c not in seen:
-            seen.add(c)
-            conclusions.append(c)
-    return {"triggered": any(sev > 0 for sev, _ in matched), "conclusions": conclusions}
+    for t in matched:
+        if t["conclusion"] not in seen:
+            seen.add(t["conclusion"])
+            conclusions.append(t["conclusion"])
+    obligations, conditional = split_effect(matched)
+    return {
+        "triggered": any(t["severity"] > 0 for t in matched),
+        "conclusions": conclusions,
+        "obligation_conclusions": sorted({t["conclusion"] for t in obligations}),
+        "conditional_conclusions": sorted({t["conclusion"] for t in conditional}),
+    }
 
 
 def _expected(card, manual, mirrors):
-    item_ids, auto, gates, thresholds = mirrors[:4]
-    states = [_item_truth(iid, card, manual, auto, gates) for iid in item_ids]
+    item_ids, _auto, _gates, thresholds, _manual_ids, _rid, _auto_map, checklist = mirrors
+    # 逐项四态真值：与基准共用 `expected_item_states`（真值语义单一实现源，非引擎计算）
+    states = expected_item_states(checklist, card, manual)
     thr = _threshold_truth(card, thresholds)
     return {
         "summary": expected_summary(states),
         "triggered": thr["triggered"],
         "threshold_conclusions": thr["conclusions"],
+        "obligation_conclusions": thr["obligation_conclusions"],
+        "conditional_conclusions": thr["conditional_conclusions"],
         "also_expect_nonpass": observed_nonpass(states),
+        # 逐项真值（供基准直接对账误报率/四态准确率；真值随用例冻结，非基准期现算）
+        "item_states": {iid: st for iid, st in zip(item_ids, states)},
     }
 
 
@@ -276,7 +278,59 @@ def _semantic_cases(mirrors, gate_keys, auto_fields):
     return cases
 
 
-def _random_cases(mirrors, gate_keys, auto_fields, manual_ids, n):
+def _auto_value_pool(auto_map):
+    """从规则包 auto_mapping 收集候选取值（数据驱动，不在生成器硬编码状态词）。
+
+    收集 equals / one_of 的取值，再补 True/False 与"缺失"哨兵，用于随机场景采样。
+    """
+    pool = []
+    for rules in auto_map.values():
+        for rule in rules or []:
+            m = rule.get("match", {})
+            if "equals" in m:
+                pool.append(m["equals"])
+            for v in m.get("one_of", []):
+                pool.append(v)
+    for v in (True, False):
+        pool.append(v)
+    out, seen = [], set()
+    for v in pool:
+        key = (type(v).__name__, v)
+        if key not in seen:
+            seen.add(key)
+            out.append(v)
+    return out
+
+
+def _mapping_cases(mirrors, gate_keys, auto_fields):
+    """四态映射专项（M2）：验证取值→状态映射与"缺项口径勘误"。"""
+    cases = []
+    # 全部自动字段 = "partial" → 全部自动项部分符合（映射词表命中）
+    card = _base_card(gate_keys)
+    for f in auto_fields:
+        card[f] = "partial"
+    cases.append(_case("mapping-partial",
+                       "自动核查字段全部记为部分符合 → 汇总 partial",
+                       card, {}, mirrors, note="auto_mapping 映射：partial"))
+    # 全部自动字段 = "not_applicable"：仅原文有"不适用情形"的项记不适用，其余记不符合
+    card_na = _base_card(gate_keys)
+    for f in auto_fields:
+        card_na[f] = "not_applicable"
+    cases.append(_case("mapping-not-applicable",
+                       "自动字段记不适用：确有免告知等情形的项不适用，无条件义务项仍记为不符合",
+                       card_na, {}, mirrors, note="不适用仅对声明 NA 的项生效"))
+    # 缺项口径勘误：无条件义务项"未制定"= 不符合（非不适用）
+    card_absent = _base_card(gate_keys)
+    card_absent["has_internal_policy"] = False      # 指引十九 应当制定 → 不符合
+    card_absent["notice_before_processing"] = "not_required"  # 指引四（六）法定免告知 → 不适用
+    cases.append(_case("absence-verdicts",
+                       "无条件义务项未制定=不符合；法定免告知情形=不适用（缺项口径勘误）",
+                       card_absent, {}, mirrors,
+                       note="M2 勘误：未制定内部管理制度记不符合，不记不适用"))
+    return cases
+
+
+def _random_cases(mirrors, gate_keys, auto_fields, manual_ids, n, value_pool):
     """确定性随机组合场景（固定 seed；迭代顺序排序，禁 set 迭代序）。"""
     rng = SplitMix64(SEED)
     cases = []
@@ -285,10 +339,10 @@ def _random_cases(mirrors, gate_keys, auto_fields, manual_ids, n):
         for k in sorted(gate_keys):
             card[k] = bool(rng.below(2))
         for f in sorted(auto_fields):
-            r = rng.below(3)
-            if r == 0:
+            r = rng.below(len(value_pool) + 1)
+            if r == len(value_pool):
                 continue            # 字段缺失 → unknown
-            card[f] = (r == 1)
+            card[f] = value_pool[r]
         manual = {}
         for mid in sorted(manual_ids):
             r = rng.below(5)
@@ -302,15 +356,17 @@ def _random_cases(mirrors, gate_keys, auto_fields, manual_ids, n):
 
 def build_cases(rs):
     mirrors = _mirrors(rs)
-    item_ids, auto, gates, thresholds, manual_ids = mirrors[:5]
+    item_ids, auto, gates, thresholds, manual_ids, _rid, auto_map, _checklist = mirrors
     gate_keys = tuple(sorted({k for k, _ in gates.values()}))
     auto_fields = tuple(sorted(set(auto.values())))
+    value_pool = _auto_value_pool(auto_map)
 
     cases = []
     cases += _boundary_cases(mirrors, gate_keys)
     cases += _named_cases(mirrors, gate_keys)
     cases += _semantic_cases(mirrors, gate_keys, auto_fields)
-    cases += _random_cases(mirrors, gate_keys, auto_fields, manual_ids, RANDOM_CASES)
+    cases += _mapping_cases(mirrors, gate_keys, auto_fields)
+    cases += _random_cases(mirrors, gate_keys, auto_fields, manual_ids, RANDOM_CASES, value_pool)
     return cases
 
 

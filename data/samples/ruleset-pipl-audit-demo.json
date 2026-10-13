@@ -125,6 +125,7 @@
         "point": "示例门槛一"
       },
       "conclusion": "trigger_periodic_audit",
+      "effect": "periodic_obligation",
       "frequency": "每两年至少一次（示例）",
       "id": "TH-DEMO-PERIODIC",
       "op": ">=",
@@ -145,6 +146,7 @@
         "point": "示例门槛二"
       },
       "conclusion": "require_professional_institution",
+      "effect": "conditional_institution",
       "frequency": "更高频次（示例）",
       "id": "TH-DEMO-INSTITUTION",
       "op": ">=",

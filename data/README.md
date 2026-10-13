@@ -3,22 +3,39 @@
 > 规则（ai-tool-project-sprint 阶段 1）：每份数据登记来源与许可；规范条目挂出处 + status（`verified`/`pending`）；程序化自制带真值数据是核心资产（固定输入可复现）。`_private/` 目录不入仓。
 > 纪律：**未挂原文核对不得落库/生效/进入判定路径**；搜索摘要一律不采信，数值以官方原文直连核对。
 
-## 一、登记表（M1 更新）
+## 一、登记表（M5 更新）
 
 | 数据 | 类型 | 来源 | 许可/版权口径 | 状态 |
 |---|---|---|---|---|
-| data/rules/（审计规则包：依据×版本） | 规则包（检查项 + 门槛 + 条款引用） | tools/gen_rulesets.py 固定模板生成，出处见 §二 | 自制（含条款号+要点引用） | ✅ M1 生效（26 检查项 + 4 门槛，全部 verified 挂出处） |
+| data/rules/（审计规则包：依据×版本） | 规则包（检查项 + 门槛 + 条款引用 + 四态映射） | tools/gen_rulesets.py 固定模板生成，出处见 §二 | 自制（含条款号+要点引用） | ✅ M2 生效（26 检查项 + 4 门槛，全部 verified 挂出处；门槛带 `effect`，auto 项带 `auto_mapping`） |
 | data/checklists/（分层审计检查单） | 结构化检查项库 | 并入 ruleset.checklist（见 §一·1） | 自制 | ✅ M1 生效（四层：制度/流程/技术/响应） |
-| data/truth/（合成审计场景 + 真值库） | 合成数据 + 算例 | tools/gen_scenarios.py 生成（固定 seed） | 自制（完全虚构，非真实数据） | ✅ M1 建库（**39 例**，见 §三·2） |
-| data/knowledge/raw/（官方原文快照） | 依据快照 | 见 §二 | 官方公文/标准 | ✅ 已入 1 份（见 §二·2） |
+| data/truth/（合成审计场景 + 真值库） | 合成数据 + 算例 | tools/gen_scenarios.py 生成（固定 seed） | 自制（完全虚构，非真实数据） | ✅ M4 增逐项真值（**42 例** × 26 项 = 1092 条逐项观测，见 §三·2/§三·3） |
+| data/knowledge/raw/（官方原文快照） | 依据快照 | 见 §二 | 官方公文/标准 | ✅ 已入 1 份（见 §二·2）；**M5 打包三重守门排除**（见 §一·5） |
+| 底稿 / 台账（运行时产物） | 审计底稿 JSON + 整改台账 CSV | 引擎编排产出（`check --draft` / `draft export` / `ledger`） | 自制（用户本地数据，**不入仓**） | ✅ M3 接入（自指纹 + 往返校验，见 §一·4） |
+| 报告产物（MD/DOCX/XLSX） | 审计报告三格式（模板两版） | `report/model.py` 内容源 + 三渲染器（`report <底稿> -o x.{md,docx,xlsx}`） | 自制（用户本地数据，**不入仓**） | ✅ M5 接入（共用内容源；DOCX/XLSX **逐字节可复现**，见 §一·5） |
+| 发行产物（onedir 双 exe） | PyInstaller 打包配置 + 数据白名单 | `tools/paudit-{cli,gui}.spec` + `tools/build_data.py`（白名单单一实现源） | 自制（构建产物 `dist/` **不入仓**） | ✅ M5 接入（版权红线三重守门，见 §一·5） |
 
 ### §一·1 检查单组织形态（M1 定）
 
 检查单**并入** `data/rules/ruleset-*.json` 的 `checklist` 字段（不单设 `data/checklists/`），
 以办法附件《个人信息保护合规审计指引》**二十七项审查要点**为骨架：第 1 项为"制定依据前言"（非审查事项，不建检查项），
 其余 **2–27 项共 26 条**。每条含 `id`/`category`（四层内部分类）/`title`/`clause`（挂办法附件指引条号）/
-`method`（auto/manual）/`auto_field`/`criteria`（四态判定标准，依指引各分项要点细化）/
-`evidence_required`/`only_if`（门控）/`status`/`source`。
+`method`（auto/manual）/`auto_field`/`auto_mapping`（M2：auto 项"取值→四态"映射规则）/
+`criteria`（四态判定标准，依指引各分项要点细化）/`evidence_required`/`only_if`（门控）/`status`/`source`。
+
+### §一·1b auto 项四态映射与缺项口径（M2 定）
+
+- **映射收进规则包**：auto 项的"取值 → 四态"规则写入 `auto_mapping`（按序取首个命中，末条 `default` 兜底）；
+  引擎（`engine/checklist._map_auto`）零业务字面量，只按声明求值。规则表为空时退化为旧口径
+  （非空=compliant / 空=noncompliant），兼容未细化的示例包。
+- **缺项口径勘误（重要）**：核对官方原文后确认，指引**十九**（"应当…制定内部管理制度和操作规程"）、
+  **二十**（"应当…采取安全技术措施"）、**二十四**（"应当制定个人信息安全事件应急预案"）为**无条件义务**，
+  **未制定 = 不符合**；指引**三**（个人信息处理规则）虽未见"应当制定"表述，但缺规则即无法履行告知义务，
+  同样记不符合。M1 骨架期"未制定=不适用"的口径会**把"没做"记成"不用做"**（虚高合规结论），M2 已勘误。
+- **保留"不适用"分支的项**：仅限原文确有"不适用情形"者——指引四（六）法定应当保密或不需要告知、
+  十六/十七/十八（无相应情形时不适用）。
+- 取值词表（工具内部约定，非法规原文）：`true`/`"complete"`→符合；`"partial"`→部分符合；
+  `false`/`"absent"`/空串→不符合；`"not_required"`/`"not_applicable"`→不适用（仅声明该项时）。
 
 ### §一·3 检查项逐条核对记录（M1，全部 ✅）
 
@@ -56,20 +73,49 @@
 
 > 守门测试 `test_gate_m1_data.py` 断言：26 项覆盖指引 2–27 项、id 唯一、全部 verified 且挂出处。
 
-### §一·2 门槛规则（M1 定，逐条核对）
+### §一·4 证据链与整改台账（M3 定）
 
-| 门槛 id | 条号 | 参数 | 算子 | 值 | 结论 | 边界归属 |
-|---|---|---|---|---|---|---|
-| `TH-SCALE-PERIODIC` | 办法第四条 | scale | `>` | 10000000（1000 万） | trigger_periodic_audit | "**超过**1000 万"= 不含等于 |
-| `TH-SCALE-OFFICER` | 办法第十二条 | scale | `>=` | 1000000（100 万） | require_personal_info_officer | "100 万**以上**"= 含等于 |
-| `TH-BREACH-GENERAL` | 办法第五条（三） | breach_scale | `>=` | 1000000（100 万） | may_require_professional_institution | "100 万**以上**"= 含等于；条件触发 |
-| `TH-BREACH-SENSITIVE` | 办法第五条（三） | breach_sensitive_scale | `>=` | 100000（10 万） | may_require_professional_institution | "10 万**以上**"= 含等于；条件触发 |
+- **证据仅存结构说明**：`attach_evidence()` 只登记 `source`/`collected_at`/`owner`/`file_ref`（**仅文件名**，路径不入底稿正文）/`size`/`sha256`，**不落真实内容副本**（脱敏纪律，见 §三）。
+- **指纹固化**：每条证据的 `sha256` 随底稿固化；底稿导出产物自身指纹 `draft_sha256` 写进随附 `.evidence.json`（"底稿被改动即可检出"）。
+- **导入三重校验（M3）**：自指纹 → `schema_version` → `ruleset_id`，任一不匹配即**显式报错**（退出码 2），不静默降级。
+- **往返一致性（M3 门）**：底稿自足（保存 `input_card`/`manual_results`/`ruleset_id`），导入时用底稿输入**离线重算结论**并与底稿记录比对；结论漂移即失败（退出码 1）。挂证与填台账**不改变**判定结论，故不影响该断言。
+- **底稿/台账不入仓**：为运行时用户数据，`data/README` 仅登记其口径；测试用夹具为 `tmp_path` 程序化合成（不落真实截图/文档）。
+- **报告可复现**：Markdown 无系统时间戳（时间取底稿显式字段）；同输入两次渲染逐字节一致（`test_report_md.py`）。
+- **整改台账字段**：`owner`（责任人）/`due`（期限）/`status`（`open`/`in_progress`/`resolved`/`waived`）；台账**只补责任落实，不得覆写**风险级与条款依据（分级由引擎按四态产出）。
+
+### §一·5 报告导出与发行打包（M5 定）
+
+- **报告三格式共用内容源**：`report/model.py` 把底稿 + 规则包组装为结构化块，`markdown.py`（核心层）
+  与 `docx.py`/`xlsx.py`（optional extra）只做"块 → 载体语法"映射，故**同一底稿在三产物里结论一致**；
+  模板两版（企业自审版 / 第三方机构版，后者加核查方式列与签署栏）。
+- **报告逐字节可复现（M5 门）**：python-docx / openpyxl 落盘时会写入当前时间（zip 条目时间戳与
+  `docProps/core.xml` 的 created/modified），同输入两次导出字节不同。`report/docxutil.py`（纯标准库、
+  DOCX/XLSX 共用）落盘后统一收口：固定 zip 条目时间戳 + `create_system=0` + 固定 core.xml 时间戳。
+  实测六种"格式 × 模板"组合跨时间间隔两次导出逐字节一致。报告产物为**用户本地数据，不入仓**。
+- **版权红线三重守门（发行产物）**：`data/knowledge/raw/`（官方原文快照）**不入打包白名单**——
+  ① 构建前：`tools/build_data.py` 的白名单展开命中禁区即 `BuildError`；
+  ② spec 文本守门：守门测试断言两个 spec 不含禁区路径字面量；
+  ③ 构建后：遍历 `dist/` 产物树，命中禁区目录/文件名特征即报错。
+- **发行产物不入仓**：`dist/`、`build/` 为构建产物（`.gitignore` 已排除）；spec 与 `build_data.py`
+  为**交付配置**，入仓（`.gitignore` 对 `tools/*.spec` 例外放行）。
+- **界面零判定**：GUI 只消费引擎 API（`gui/session.py` 为纯 Python 数据面，零 Qt、零判定逻辑），
+  故界面与 CLI 结论不会漂移；挂证与台账填写**不改变**判定结论。
+
+### §一·2 门槛规则（M1 定，逐条核对；M2 补义务类型）
+
+| 门槛 id | 条号 | 参数 | 算子 | 值 | 结论 | 义务类型（M2） | 边界归属 |
+|---|---|---|---|---|---|---|---|
+| `TH-SCALE-PERIODIC` | 办法第四条 | scale | `>` | 10000000（1000 万） | trigger_periodic_audit | `periodic_obligation`（无条件，带频次） | "**超过**1000 万"= 不含等于 |
+| `TH-SCALE-OFFICER` | 办法第十二条 | scale | `>=` | 1000000（100 万） | require_personal_info_officer | `standing_obligation`（无条件） | "100 万**以上**"= 含等于 |
+| `TH-BREACH-GENERAL` | 办法第五条（三） | breach_scale | `>=` | 1000000（100 万） | may_require_professional_institution | `conditional_institution`（条件触发） | "100 万**以上**"= 含等于 |
+| `TH-BREACH-SENSITIVE` | 办法第五条（三） | breach_sensitive_scale | `>=` | 100000（10 万） | may_require_professional_institution | `conditional_institution`（条件触发） | "10 万**以上**"= 含等于 |
 
 > **第五条建模口径**：第五条是"保护部门**可以要求**委托专业机构审计"的三类情形——
 > （一）较大风险、（二）可能侵害众多个人权益为**定性**情形（不建模为数值门槛）；
 > （三）安全事件致 100 万人以上个人信息或 10 万人以上敏感信息泄露等为**可量化**情形，建模为两条门槛。
 > 结论码 `may_require_professional_institution` 表"条件触发"（保护部门裁量），**非无条件义务**——
-> 与第四条（`trigger_periodic_audit`，处理者无条件义务）语义区分。
+> **M2 起按 `effect` 分栏呈现**（`obligations` 无条件义务 / `conditional_triggers` 条件触发），
+> 报告分节（3.1 / 3.2）呈现，"频次"只取无条件义务栏，结论不混同。
 
 ### §二·2 原文快照登记
 
@@ -127,43 +173,77 @@
 - **假身份白名单**：合成审计场景中全部自然人身份信息使用虚构值：手机号用保留测试号段（如 `19900000000` 类，逐个登记）、姓名用明显虚构名（如"张三示例"）、证件号用**符合校验位算法但虚构**的号码；**禁止任何真实个人信息入库**。 <!-- audit-allow: 合成测试号段白名单，非真实号码 -->
 - **假企业白名单**：合成企业用虚构名称 + 符合校验位算法的虚构统一社会信用代码（保留测试段，入库登记），不得与真实企业冲突。
 - **植入真值**：合成场景由生成器产出时同时给出**期望审计判定**（是否触发、应判四态、问题分级），真值随场景入库，引擎双路对账。
-- **证据样本纪律**：证据链的测试样本仅保留**结构说明**（字段/类型/指纹），不落真实截图或文档内容。
+- **证据样本纪律**：证据链的测试样本仅保留**结构说明**（字段/类型/指纹），不落真实截图或文档内容；测试夹具在 `tmp_path` 程序化合成。
 - **可复现**：生成器固定随机种子；产出物 sha256 留档。
 
-### §三·1 冻结产物指纹（M1 登记）
+### §三·1 冻结产物指纹（M4 复核）
 
 | 产物 | 生成器 | sha256 |
 |---|---|---|
-| `data/rules/ruleset-pipl-audit-2025.json`（权威） | tools/gen_rulesets.py | `d4604afaf50d0696a0650d4cfe054866e9260b4b68f476a6810ff3ea332bdfa8` |
-| `data/samples/ruleset-pipl-audit-demo.json`（示例） | tools/gen_rulesets.py | `cab7e814edcf06a6e911ecf0381fe364e2458e8deaa3db7daad92497bda59c7f` |
+| `data/rules/ruleset-pipl-audit-2025.json`（权威） | tools/gen_rulesets.py | `da8aa7a6c4044bef6fb562f5a91c3f0bb2ba9a40761c9c5b28f421a056aab81b` |
+| `data/samples/ruleset-pipl-audit-demo.json`（示例） | tools/gen_rulesets.py | `2941b48f2322935a13203beb96449921750038c09481fcffce71fd504392a0af` |
 | `data/samples/card-demo.json`（示例参数卡） | tools/gen_rulesets.py | `efb06dd27c418c82834c86d5b139a52add095f6c21b2d9a955b06069b94fc872` |
-| `data/truth/`（39 例真值库，目录聚合指纹） | tools/gen_scenarios.py | `8ecef304e0d21fbce03d5ea3768aad19c7ade0d60b717a27dced9fe850591a93` |
+| `data/truth/`（42 例真值库，目录聚合指纹） | tools/gen_scenarios.py | `974cd90668e2da446885bb3e92c919653cecd6e3007b24eb5a393aa5a8f0ff9e` |
+
+> M4 只改**真值库**（`expected` 增逐项四态 `item_states`，供基准直接对账误报率/四态准确率）；
+> 规则包与示例包未动，指纹与 M3 一致。真值聚合指纹由 `bed435a8…`（M2/M3）变为 `974cd906…`（M4）。
+> 守门测试 G5/G5b 仍逐字节核对（`test_gate_frozen.py`）。
 
 > 目录聚合指纹口径：对 `data/truth/*.json` 按文件名排序，逐个更新 `sha256(文件名 + 文件 sha256)` 的 sha256。
 > 生成器重跑逐字节一致（守门测试 G5/G5b）；**禁手改产物**，改需求走生成器整目录重生成。
 
-### §三·2 合成场景真值库（M1 建，39 例）
+### §三·2 合成场景真值库（M1 建 39 例 → M2 扩至 42 例 → M4 增逐项真值）
 
 - **生成器**：`tools/gen_scenarios.py`（自研 splitmix64 RNG，固定 `SEED=0x5EED5EED2026`，12 例随机场景；
   迭代顺序全排序，禁 `set` 迭代序与系统时钟）。
 - **真值来源**：由 `benchmark/cases.py`（真值语义单一实现源）**独立推导**（不由引擎计算）——
-  逐项四态 → `expected_summary`；非 pass 集 → `observed_nonpass`；门槛 → `apply_op`。引擎与真值对账 = 两套独立实现互验。
-- **用例构成**（共 39 例）：
+  逐项四态 → `expected_item_states`（门控/auto 映射/人工录入，auto 项经 `apply_mapping` 独立求值）→
+  `expected_summary`；非 pass 集 → `observed_nonpass`；门槛 → `apply_op`；分栏 → `split_effect`。
+  引擎与真值对账 = 两套独立实现互验。
+- **用例构成**（共 42 例）：
 
 | 类别 | 例数 | 说明 |
 |---|---|---|
 | 门槛边界（below/exact/above） | 12 | 4 条门槛 × {value−1, value, value+1}，逐条验证边界归属 |
 | 具名业务场景 | 10 | 含点名的"1200 万人未做审计应判触发""100 万人以上未指定负责人"等 |
 | 四态/汇总语义专项 | 5 | 全不适用→not_assessed、全自动通过→compliant、全不通过→noncompliant、部分→partial、未观测不误判 |
-| 确定性随机场景 | 12 | 固定 seed 组合门控/自动字段/人工录入 |
+| 四态映射专项（M2 新增） | 3 | `mapping-partial`（全记部分符合）、`mapping-not-applicable`（仅声明 NA 的项不适用）、`absence-verdicts`（无条件义务项未制定=不符合） |
+| 确定性随机场景 | 12 | 固定 seed 组合门控/自动字段/人工录入；自动字段取值池**从规则包 `auto_mapping` 派生**（覆盖 true/false/partial/not_required/空串/缺失） |
 
 - **每条真值字段**：`case_id`/`ruleset_id`/`title`/`note`/`input_card`/`manual_results`/
-  `expected{summary, triggered, threshold_conclusions, also_expect_nonpass}`。
+  `expected{summary, triggered, threshold_conclusions, obligation_conclusions,
+  conditional_conclusions, also_expect_nonpass, item_states}`（后三项：分栏结论为 M2 新增，
+  逐项四态 `item_states` 为 M4 新增，供基准直接对账误报率/四态准确率）。
 - **点名场景**：`case-1200w-no-audit-triggers`（1200 万人未审计 → 触发周期性义务）、
   `case-over-1m-no-officer`（100 万人以上未指定负责人 → 触发指定义务且判非合规）、
   `case-breach-general-triggers`/`case-breach-sensitive-triggers`（第五条（三）两类安全事件门槛）。
 - **合成数据纪律**：真值文件仅含整数规模、布尔门控与四态字符串，**不落任何真实个人信息**
   （守门测试 `test_gate_m1_data.py::test_truth_cases_contain_no_real_personal_data` 扫手机号/证件号形态串）。
+
+### §三·3 基准指标口径与实测值（M4 固化）
+
+- **口径唯一实现源**：`benchmark/cases.py` 的 `confusion()`——**问题 = `partial` ∪ `noncompliant`**
+  （`FLAGGED_STATES`）；`compliant`/`not_applicable`/`unknown` 视为"非问题"（不构成判错）。
+  **误报率 = 误报数 ÷ 真值非问题项数**；**漏报率 = 漏报数 ÷ 真值问题项数**（分母为 0 记 0）。
+- **真值取冻结用例的 `expected.item_states`**（生成期由 `cases.expected_item_states()` 独立推导），
+  基准期不现算真值——避免"用引擎算真值再拿引擎比对"的自证循环。
+- **门值**（plan/05 §三 M4）：触发判定准确率 ≥ 0.95、四态准确率 ≥ 0.95、误报率 = 0；
+  门值常量在 `cases.GATE_*`（单一源），`bench --json` 的 `gates` 字段回显。
+- **实测值（权威规则包 `pipl-audit-2025`，`bench --json` 的 `metrics`）**：
+
+| 指标 | 实测值 | 样本量（分母） | 门值 |
+|---|---|---|---|
+| 触发判定准确率 | 1.0000 | 54（B1 边界 12 + B3 场景 42） | ≥ 0.95 |
+| 四态准确率 | 1.0000 | 1092（42 场景 × 26 检查项） | ≥ 0.95 |
+| 误报率 | 0.0000 | 982（真值非问题项数） | = 0 |
+| 漏报率（参考） | 0.0000 | 110（真值问题项数） | — |
+| auto 映射一致率（参考） | 1.0000 | 90（9 auto 项 × 10 探针值） | — |
+
+- **样本量说明**：真值库 42 例 × 26 检查项 = 1092 条逐项观测（真值四态分布：
+  `not_applicable` 534 / `unknown` 356 / `compliant` 92 / `noncompliant` 67 / `partial` 43）；
+  其中"真值问题"（partial ∪ noncompliant）110 条、"真值非问题"982 条。
+- **无样本不阻塞**：示例规则包无匹配真值库 → B3 标注"未生成"，对应指标样本量为 0；
+  门禁对无样本指标不阻塞（"无证据"≠"不达标"），权威包三指标样本量均 > 0 故为强约束。
 
 ## 四、法律与许可口径
 

@@ -1,4 +1,9 @@
-"""规则包数据模型（仅标准库，dataclass）。"""
+"""规则包数据模型（仅标准库，dataclass）。
+
+四态判定与门槛判定的**业务语义一律来自规则包数据**（本模块只承载词汇表，
+不含任何条款/门槛内容）：`auto_mapping` 的取值→状态映射、`trigger_type` 的
+义务类型，均由规则包声明，引擎按声明求值（NFR-5）。
+"""
 
 from dataclasses import dataclass, field
 from typing import List, Optional
@@ -28,6 +33,21 @@ APPLICABLE_STATES = (STATE_COMPLIANT, STATE_PARTIAL, STATE_NONCOMPLIANT)
 
 # 单项全部合法状态（人工录入校验用）
 ALL_STATES = APPLICABLE_STATES + (STATE_NOT_APPLICABLE, STATE_UNKNOWN)
+
+# 门槛义务类型（effect）——引擎按声明分栏呈现，不含条款内容
+#   periodic_obligation      周期性义务（处理者无条件，带频次）
+#   standing_obligation      持续性义务（处理者无条件，无频次）
+#   conditional_institution  条件触发（保护部门"可以要求"，非处理者无条件义务）
+EFFECT_PERIODIC_OBLIGATION = "periodic_obligation"
+EFFECT_STANDING_OBLIGATION = "standing_obligation"
+EFFECT_CONDITIONAL_INSTITUTION = "conditional_institution"
+
+# auto_mapping 匹配词表（结构性词，非政策字面量）：
+#   {"equals": v} / {"one_of": [v...]} / {"empty": bool} / {"nonempty": bool}
+MATCH_EQUALS = "equals"
+MATCH_ONE_OF = "one_of"
+MATCH_EMPTY = "empty"
+MATCH_NONEMPTY = "nonempty"
 
 
 @dataclass(frozen=True)
@@ -89,6 +109,61 @@ class Basis:
 
 
 @dataclass(frozen=True)
+class AutoMapping:
+    """auto 项的"取值 → 四态"映射规则（数据驱动，引擎零业务字面量）。
+
+    rules 为有序列表，每条 `{"match": {...}, "state": "<四态>"}`；按序取**首个命中**。
+    末尾可挂 `{"match": {"default": true}, "state": "..."}` 作兜底。
+    未给规则（空）时引擎退化为旧口径（非空=True → compliant / 否则 noncompliant），
+    以兼容未细化的规则包（示例包）。
+    """
+
+    rules: List[dict] = field(default_factory=list)
+
+    @classmethod
+    def from_dict(cls, d):
+        if not d:
+            return cls(rules=[])
+        if isinstance(d, list):
+            return cls(rules=list(d))
+        return cls(rules=list(d.get("rules", [])))
+
+    def is_empty(self):
+        return not self.rules
+
+    def match(self, value):
+        """返回首个命中规则的 state；无命中返回 None。"""
+        for rule in self.rules:
+            m = rule.get("match", {})
+            if _match_rule(m, value):
+                return rule.get("state")
+        return None
+
+    def to_dict(self):
+        return {"rules": [dict(r) for r in self.rules]}
+
+
+def _match_rule(m, value):
+    if m.get("default"):
+        return True
+    if MATCH_EMPTY in m:
+        empty = value is None or value is False or (
+            isinstance(value, str) and not value.strip())
+        if bool(m[MATCH_EMPTY]) != empty:
+            return False
+    if MATCH_NONEMPTY in m:
+        empty = value is None or value is False or (
+            isinstance(value, str) and not value.strip())
+        if bool(m[MATCH_NONEMPTY]) == empty:
+            return False
+    if MATCH_EQUALS in m and value != m[MATCH_EQUALS]:
+        return False
+    if MATCH_ONE_OF in m and value not in m[MATCH_ONE_OF]:
+        return False
+    return True
+
+
+@dataclass(frozen=True)
 class Threshold:
     id: str
     param: str
@@ -99,6 +174,7 @@ class Threshold:
     clause: Clause
     status: str
     severity: int = 0
+    effect: str = EFFECT_STANDING_OBLIGATION
     source: Source = field(default_factory=Source)
 
     @classmethod
@@ -113,8 +189,13 @@ class Threshold:
             clause=Clause.from_dict(d.get("clause")),
             status=d.get("status", STATUS_PENDING),
             severity=d.get("severity", 0),
+            effect=d.get("effect", EFFECT_STANDING_OBLIGATION),
             source=Source.from_dict(d.get("source")),
         )
+
+    def is_conditional(self):
+        """是否为"条件触发"（保护部门可以要求，非处理者无条件义务）。"""
+        return self.effect == EFFECT_CONDITIONAL_INSTITUTION
 
 
 @dataclass(frozen=True)
@@ -126,6 +207,7 @@ class CheckItem:
     method: str
     criteria: str = ""
     auto_field: Optional[str] = None
+    auto_mapping: AutoMapping = field(default_factory=AutoMapping)
     evidence_required: bool = True
     only_if: Optional[dict] = None
     status: str = STATUS_PENDING
@@ -141,6 +223,7 @@ class CheckItem:
             method=d.get("method", METHOD_MANUAL),
             criteria=d.get("criteria", ""),
             auto_field=d.get("auto_field"),
+            auto_mapping=AutoMapping.from_dict(d.get("auto_mapping")),
             evidence_required=d.get("evidence_required", True),
             only_if=d.get("only_if"),
             status=d.get("status", STATUS_PENDING),

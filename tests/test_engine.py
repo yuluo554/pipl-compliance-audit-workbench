@@ -4,6 +4,7 @@ from paudit.engine.checklist import counts, evaluate_item, summarize
 from paudit.engine.pipeline import AuditRequest, compute_audit
 from paudit.engine.thresholds import evaluate_thresholds
 from paudit.rules.model import (
+    AutoMapping,
     CheckItem,
     Clause,
     STATE_COMPLIANT,
@@ -19,10 +20,10 @@ from paudit.rules.model import (
 )
 
 
-def _th(op, value, severity=1, conclusion="c"):
-    return Threshold(id="T", param="scale", op=op, value=value, conclusion=conclusion,
+def _th(op, value, severity=1, conclusion="c", effect="standing_obligation", param="scale"):
+    return Threshold(id="T", param=param, op=op, value=value, conclusion=conclusion,
                      frequency="", clause=Clause("b", "a"), status="verified",
-                     severity=severity)
+                     severity=severity, effect=effect)
 
 
 def test_threshold_boundary_ge():
@@ -55,9 +56,52 @@ def test_threshold_missing_param_ignored():
     assert evaluate_thresholds(rs, {}).triggered is False
 
 
-def _item(method="manual", auto_field=None, only_if=None):
+def test_threshold_effect_split_obligation_vs_conditional():
+    """三分判定：无条件义务 与 条件触发（保护部门可以要求）分栏，不混同。"""
+    rs = type("R", (), {"thresholds": [
+        _th(">=", 100, severity=1, conclusion="standing",
+            effect="standing_obligation", param="a"),
+        _th(">=", 100, severity=1, conclusion="periodic",
+            effect="periodic_obligation", param="b"),
+        _th(">=", 100, severity=2, conclusion="may_require",
+            effect="conditional_institution", param="c"),
+    ]})()
+    r = evaluate_thresholds(rs, {"a": 200, "b": 200, "c": 200})
+    assert r.triggered is True
+    assert {t.conclusion for t in r.obligations} == {"standing", "periodic"}
+    assert {t.conclusion for t in r.conditional_triggers} == {"may_require"}
+    # 结论码仍按 severity 降序全量归并
+    assert r.conclusions == ["may_require", "periodic", "standing"] or \
+        r.conclusions == ["may_require", "standing", "periodic"]
+
+
+def test_threshold_conditional_only_not_obligation():
+    """仅命中条件触发时，无条件义务栏为空（不冒充处理者义务）。"""
+    rs = type("R", (), {"thresholds": [
+        _th(">=", 100, severity=2, conclusion="may_require",
+            effect="conditional_institution", param="c"),
+    ]})()
+    r = evaluate_thresholds(rs, {"c": 200})
+    assert r.triggered is True
+    assert r.obligations == []
+    assert len(r.conditional_triggers) == 1
+    d = r.to_dict()
+    assert d["obligations"] == [] and d["conditional_triggers"][0]["conclusion"] == "may_require"
+
+
+def test_threshold_frequency_only_from_obligations():
+    """频次只取无条件义务（条件触发无处理者频次义务）。"""
+    rs = type("R", (), {"thresholds": [
+        _th(">=", 100, severity=2, conclusion="may_require",
+            effect="conditional_institution", param="c"),
+    ]})()
+    assert evaluate_thresholds(rs, {"c": 200}).frequency == ""
+
+
+def _item(method="manual", auto_field=None, only_if=None, auto_mapping=None):
     return CheckItem(id="C", category="c", title="t", clause=Clause("b", "a"),
                      method=method, criteria="x", auto_field=auto_field,
+                     auto_mapping=AutoMapping.from_dict(auto_mapping),
                      only_if=only_if, status="verified")
 
 
@@ -65,6 +109,36 @@ def test_auto_item_pass_fail():
     it = _item(method="auto", auto_field="flag")
     assert evaluate_item(it, {"flag": True}, {}).state == STATE_COMPLIANT
     assert evaluate_item(it, {"flag": False}, {}).state == STATE_NONCOMPLIANT
+
+
+def test_auto_item_mapping_partial():
+    """mapping 声明 partial → 取值命中即部分符合（数据驱动，引擎零业务字面量）。"""
+    it = _item(method="auto", auto_field="flag", auto_mapping=[
+        {"match": {"one_of": [True, "complete"]}, "state": "compliant"},
+        {"match": {"equals": "partial"}, "state": "partial"},
+        {"match": {"default": True}, "state": "noncompliant"},
+    ])
+    assert evaluate_item(it, {"flag": "partial"}, {}).state == STATE_PARTIAL
+    assert evaluate_item(it, {"flag": True}, {}).state == STATE_COMPLIANT
+    assert evaluate_item(it, {"flag": "absent"}, {}).state == STATE_NONCOMPLIANT
+    assert evaluate_item(it, {"flag": False}, {}).state == STATE_NONCOMPLIANT
+
+
+def test_auto_item_mapping_not_applicable():
+    """mapping 可声明 not_applicable（法定免告知等）→ 不计违规不进分母。"""
+    it = _item(method="auto", auto_field="flag", auto_mapping=[
+        {"match": {"equals": "not_required"}, "state": "not_applicable"},
+        {"match": {"default": True}, "state": "noncompliant"},
+    ])
+    assert evaluate_item(it, {"flag": "not_required"}, {}).state == STATE_NOT_APPLICABLE
+    assert evaluate_item(it, {"flag": False}, {}).state == STATE_NONCOMPLIANT
+
+
+def test_auto_item_no_mapping_falls_back():
+    """规则包未给 mapping → 退化口径（非空=compliant / 空=noncompliant）。"""
+    it = _item(method="auto", auto_field="flag")
+    assert evaluate_item(it, {"flag": "任意非空"}, {}).state == STATE_COMPLIANT
+    assert evaluate_item(it, {"flag": ""}, {}).state == STATE_NONCOMPLIANT
 
 
 def test_auto_item_field_missing_is_unknown():

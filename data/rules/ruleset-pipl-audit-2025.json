@@ -37,6 +37,7 @@
   "checklist": [
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "流程层",
       "clause": {
         "article": "附件指引2",
@@ -58,13 +59,37 @@
     },
     {
       "auto_field": "has_processing_rules",
+      "auto_mapping": [
+        {
+          "match": {
+            "one_of": [
+              true,
+              "complete",
+              "yes"
+            ]
+          },
+          "state": "compliant"
+        },
+        {
+          "match": {
+            "equals": "partial"
+          },
+          "state": "partial"
+        },
+        {
+          "match": {
+            "default": true
+          },
+          "state": "noncompliant"
+        }
+      ],
       "category": "流程层",
       "clause": {
         "article": "附件指引3",
         "basis": "网信办令第18号",
         "point": "个人信息处理规则审查（告知完整性/最小必要/保存期限/权利途径）"
       },
-      "criteria": "四态判定（个人信息处理规则审查（告知完整性/最小必要/保存期限/权利途径））：逐项核对指引三（一）名称与联系方式、（二）清单列明收集种类方式、（三）目的直接相关且影响最小、（四）保存期限及到期处理、（五）查阅复制转移更正补充删除限制处理注销撤回的途径。全部满足=符合；部分满足=部分符合；均不满足=不符合；未制定个人信息处理规则=不适用。",
+      "criteria": "四态判定（个人信息处理规则审查（告知完整性/最小必要/保存期限/权利途径））：逐项核对指引三（一）名称与联系方式、（二）清单列明收集种类方式、（三）目的直接相关且影响最小、（四）保存期限及到期处理、（五）查阅复制转移更正补充删除限制处理注销撤回的途径。全部满足=符合；部分满足=部分符合；均不满足=不符合；未制定个人信息处理规则=不符合。",
       "evidence_required": true,
       "id": "CHK-PRO-003",
       "method": "auto",
@@ -79,6 +104,39 @@
     },
     {
       "auto_field": "notice_before_processing",
+      "auto_mapping": [
+        {
+          "match": {
+            "one_of": [
+              true,
+              "complete",
+              "yes"
+            ]
+          },
+          "state": "compliant"
+        },
+        {
+          "match": {
+            "equals": "partial"
+          },
+          "state": "partial"
+        },
+        {
+          "match": {
+            "one_of": [
+              "not_required",
+              "not_applicable"
+            ]
+          },
+          "state": "not_applicable"
+        },
+        {
+          "match": {
+            "default": true
+          },
+          "state": "noncompliant"
+        }
+      ],
       "category": "流程层",
       "clause": {
         "article": "附件指引4",
@@ -100,6 +158,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "流程层",
       "clause": {
         "article": "附件指引5",
@@ -125,6 +184,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "流程层",
       "clause": {
         "article": "附件指引6",
@@ -150,6 +210,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "流程层",
       "clause": {
         "article": "附件指引7",
@@ -175,6 +236,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "流程层",
       "clause": {
         "article": "附件指引8",
@@ -200,6 +262,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "技术层",
       "clause": {
         "article": "附件指引9",
@@ -225,6 +288,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "流程层",
       "clause": {
         "article": "附件指引10",
@@ -250,6 +314,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "技术层",
       "clause": {
         "article": "附件指引11",
@@ -275,6 +340,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "流程层",
       "clause": {
         "article": "附件指引12",
@@ -300,6 +366,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "流程层",
       "clause": {
         "article": "附件指引13",
@@ -325,6 +392,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "流程层",
       "clause": {
         "article": "附件指引14",
@@ -350,6 +418,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "流程层",
       "clause": {
         "article": "附件指引15",
@@ -375,6 +444,38 @@
     },
     {
       "auto_field": "deletion_request_channel",
+      "auto_mapping": [
+        {
+          "match": {
+            "one_of": [
+              true,
+              "complete",
+              "yes"
+            ]
+          },
+          "state": "compliant"
+        },
+        {
+          "match": {
+            "equals": "partial"
+          },
+          "state": "partial"
+        },
+        {
+          "match": {
+            "one_of": [
+              "not_applicable"
+            ]
+          },
+          "state": "not_applicable"
+        },
+        {
+          "match": {
+            "default": true
+          },
+          "state": "noncompliant"
+        }
+      ],
       "category": "响应层",
       "clause": {
         "article": "附件指引16",
@@ -396,6 +497,38 @@
     },
     {
       "auto_field": "rights_request_mechanism",
+      "auto_mapping": [
+        {
+          "match": {
+            "one_of": [
+              true,
+              "complete",
+              "yes"
+            ]
+          },
+          "state": "compliant"
+        },
+        {
+          "match": {
+            "equals": "partial"
+          },
+          "state": "partial"
+        },
+        {
+          "match": {
+            "one_of": [
+              "not_applicable"
+            ]
+          },
+          "state": "not_applicable"
+        },
+        {
+          "match": {
+            "default": true
+          },
+          "state": "noncompliant"
+        }
+      ],
       "category": "响应层",
       "clause": {
         "article": "附件指引17",
@@ -417,6 +550,38 @@
     },
     {
       "auto_field": "rules_explanation_channel",
+      "auto_mapping": [
+        {
+          "match": {
+            "one_of": [
+              true,
+              "complete",
+              "yes"
+            ]
+          },
+          "state": "compliant"
+        },
+        {
+          "match": {
+            "equals": "partial"
+          },
+          "state": "partial"
+        },
+        {
+          "match": {
+            "one_of": [
+              "not_applicable"
+            ]
+          },
+          "state": "not_applicable"
+        },
+        {
+          "match": {
+            "default": true
+          },
+          "state": "noncompliant"
+        }
+      ],
       "category": "响应层",
       "clause": {
         "article": "附件指引18",
@@ -438,13 +603,37 @@
     },
     {
       "auto_field": "has_internal_policy",
+      "auto_mapping": [
+        {
+          "match": {
+            "one_of": [
+              true,
+              "complete",
+              "yes"
+            ]
+          },
+          "state": "compliant"
+        },
+        {
+          "match": {
+            "equals": "partial"
+          },
+          "state": "partial"
+        },
+        {
+          "match": {
+            "default": true
+          },
+          "state": "noncompliant"
+        }
+      ],
       "category": "制度层",
       "clause": {
         "article": "附件指引19",
         "basis": "网信办令第18号",
         "point": "内部管理制度与操作规程审查（方针/组织架构/分类/应急/影响评估/投诉/权限/培训/履职/责任制）"
       },
-      "criteria": "四态判定（内部管理制度与操作规程审查（方针/组织架构/分类/应急/影响评估/投诉/权限/培训/履职/责任制））：逐项核对指引十九（一）方针目标原则、（二）组织架构人员配备行为规范管理责任、（三）分类、（四）应急响应机制、（五）影响评估与合规审计制度、（六）投诉举报受理流程、（七）操作权限、（八）安全教育培训计划、（九）履职评价制度、（十）违法处理责任制度、（十一）其他。全部满足=符合；部分满足=部分符合；均不满足=不符合；未制定个人信息保护内部管理制度和操作规程=不适用。",
+      "criteria": "四态判定（内部管理制度与操作规程审查（方针/组织架构/分类/应急/影响评估/投诉/权限/培训/履职/责任制））：逐项核对指引十九（一）方针目标原则、（二）组织架构人员配备行为规范管理责任、（三）分类、（四）应急响应机制、（五）影响评估与合规审计制度、（六）投诉举报受理流程、（七）操作权限、（八）安全教育培训计划、（九）履职评价制度、（十）违法处理责任制度、（十一）其他。全部满足=符合；部分满足=部分符合；均不满足=不符合；未制定个人信息保护内部管理制度和操作规程=不符合。",
       "evidence_required": true,
       "id": "CHK-DOC-019",
       "method": "auto",
@@ -459,13 +648,37 @@
     },
     {
       "auto_field": "has_security_measures",
+      "auto_mapping": [
+        {
+          "match": {
+            "one_of": [
+              true,
+              "complete",
+              "yes"
+            ]
+          },
+          "state": "compliant"
+        },
+        {
+          "match": {
+            "equals": "partial"
+          },
+          "state": "partial"
+        },
+        {
+          "match": {
+            "default": true
+          },
+          "state": "noncompliant"
+        }
+      ],
       "category": "技术层",
       "clause": {
         "article": "附件指引20",
         "basis": "网信办令第18号",
         "point": "安全技术措施审查（保密性完整性可用性/加密去标识化/操作权限）"
       },
-      "criteria": "四态判定（安全技术措施审查（保密性完整性可用性/加密去标识化/操作权限））：逐项核对指引二十（一）保密性完整性可用性、（二）加密去标识化、（三）操作权限的合理确定。全部满足=符合；部分满足=部分符合；均不满足=不符合；未采取安全技术措施=不适用。",
+      "criteria": "四态判定（安全技术措施审查（保密性完整性可用性/加密去标识化/操作权限））：逐项核对指引二十（一）保密性完整性可用性、（二）加密去标识化、（三）操作权限的合理确定。全部满足=符合；部分满足=部分符合；均不满足=不符合；未采取安全技术措施=不符合。",
       "evidence_required": true,
       "id": "CHK-TEC-020",
       "method": "auto",
@@ -480,13 +693,37 @@
     },
     {
       "auto_field": "has_training_plan",
+      "auto_mapping": [
+        {
+          "match": {
+            "one_of": [
+              true,
+              "complete",
+              "yes"
+            ]
+          },
+          "state": "compliant"
+        },
+        {
+          "match": {
+            "equals": "partial"
+          },
+          "state": "partial"
+        },
+        {
+          "match": {
+            "default": true
+          },
+          "state": "noncompliant"
+        }
+      ],
       "category": "制度层",
       "clause": {
         "article": "附件指引21",
         "basis": "网信办令第18号",
         "point": "教育培训计划审查（培训对象/考核/内容方式频率）"
       },
-      "criteria": "四态判定（教育培训计划审查（培训对象/考核/内容方式频率））：逐项核对指引二十一（一）分层开展培训并对意识技能考核、（二）内容方式对象频率满足保护需要。全部满足=符合；部分满足=部分符合；均不满足=不符合；未制定教育培训计划=不适用。",
+      "criteria": "四态判定（教育培训计划审查（培训对象/考核/内容方式频率））：逐项核对指引二十一（一）分层开展培训并对意识技能考核、（二）内容方式对象频率满足保护需要。全部满足=符合；部分满足=部分符合；均不满足=不符合；未制定教育培训计划=不符合。",
       "evidence_required": true,
       "id": "CHK-DOC-021",
       "method": "auto",
@@ -501,6 +738,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "制度层",
       "clause": {
         "article": "附件指引22",
@@ -522,6 +760,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "流程层",
       "clause": {
         "article": "附件指引23",
@@ -543,13 +782,37 @@
     },
     {
       "auto_field": "has_contingency_plan",
+      "auto_mapping": [
+        {
+          "match": {
+            "one_of": [
+              true,
+              "complete",
+              "yes"
+            ]
+          },
+          "state": "compliant"
+        },
+        {
+          "match": {
+            "equals": "partial"
+          },
+          "state": "partial"
+        },
+        {
+          "match": {
+            "default": true
+          },
+          "state": "noncompliant"
+        }
+      ],
       "category": "响应层",
       "clause": {
         "article": "附件指引24",
         "basis": "网信办令第18号",
         "point": "安全事件应急预案审查（风险评估/组织保障/培训演练）"
       },
-      "criteria": "四态判定（安全事件应急预案审查（风险评估/组织保障/培训演练））：逐项核对指引二十四（一）结合业务系统评估预测风险、（二）组织人员技术物资指挥处置程序、（三）应急预案培训与定期演练。全部满足=符合；部分满足=部分符合；均不满足=不符合；未制定安全事件应急预案=不适用。",
+      "criteria": "四态判定（安全事件应急预案审查（风险评估/组织保障/培训演练））：逐项核对指引二十四（一）结合业务系统评估预测风险、（二）组织人员技术物资指挥处置程序、（三）应急预案培训与定期演练。全部满足=符合；部分满足=部分符合；均不满足=不符合；未制定安全事件应急预案=不符合。",
       "evidence_required": true,
       "id": "CHK-RES-024",
       "method": "auto",
@@ -564,6 +827,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "响应层",
       "clause": {
         "article": "附件指引25",
@@ -589,6 +853,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "制度层",
       "clause": {
         "article": "附件指引26",
@@ -614,6 +879,7 @@
     },
     {
       "auto_field": null,
+      "auto_mapping": null,
       "category": "制度层",
       "clause": {
         "article": "附件指引27",
@@ -649,6 +915,7 @@
         "point": "处理超过1000万人个人信息的处理者，应当每两年至少开展一次合规审计"
       },
       "conclusion": "trigger_periodic_audit",
+      "effect": "periodic_obligation",
       "frequency": "每两年至少开展一次合规审计",
       "id": "TH-SCALE-PERIODIC",
       "op": ">",
@@ -669,6 +936,7 @@
         "point": "处理100万人以上个人信息的处理者应当指定个人信息保护负责人"
       },
       "conclusion": "require_personal_info_officer",
+      "effect": "standing_obligation",
       "frequency": "应当指定个人信息保护负责人",
       "id": "TH-SCALE-OFFICER",
       "op": ">=",
@@ -689,6 +957,7 @@
         "point": "发生个人信息安全事件，导致100万人以上个人信息泄露、篡改、丢失、毁损的，保护部门可以要求委托专业机构开展合规审计"
       },
       "conclusion": "may_require_professional_institution",
+      "effect": "conditional_institution",
       "frequency": "保护部门可以要求委托专业机构开展合规审计",
       "id": "TH-BREACH-GENERAL",
       "op": ">=",
@@ -709,6 +978,7 @@
         "point": "发生个人信息安全事件，导致10万人以上敏感个人信息泄露、篡改、丢失、毁损的，保护部门可以要求委托专业机构开展合规审计"
       },
       "conclusion": "may_require_professional_institution",
+      "effect": "conditional_institution",
       "frequency": "保护部门可以要求委托专业机构开展合规审计",
       "id": "TH-BREACH-SENSITIVE",
       "op": ">=",

@@ -2,6 +2,38 @@
   "case_id": "boundary-th-breach-sensitive-above",
   "expected": {
     "also_expect_nonpass": [],
+    "conditional_conclusions": [
+      "may_require_professional_institution"
+    ],
+    "item_states": {
+      "CHK-DOC-019": "unknown",
+      "CHK-DOC-021": "unknown",
+      "CHK-DOC-022": "unknown",
+      "CHK-DOC-026": "not_applicable",
+      "CHK-DOC-027": "not_applicable",
+      "CHK-PRO-002": "unknown",
+      "CHK-PRO-003": "unknown",
+      "CHK-PRO-004": "unknown",
+      "CHK-PRO-005": "not_applicable",
+      "CHK-PRO-006": "not_applicable",
+      "CHK-PRO-007": "not_applicable",
+      "CHK-PRO-008": "not_applicable",
+      "CHK-PRO-010": "not_applicable",
+      "CHK-PRO-012": "not_applicable",
+      "CHK-PRO-013": "not_applicable",
+      "CHK-PRO-014": "not_applicable",
+      "CHK-PRO-015": "not_applicable",
+      "CHK-PRO-023": "unknown",
+      "CHK-RES-016": "unknown",
+      "CHK-RES-017": "unknown",
+      "CHK-RES-018": "unknown",
+      "CHK-RES-024": "unknown",
+      "CHK-RES-025": "not_applicable",
+      "CHK-TEC-009": "not_applicable",
+      "CHK-TEC-011": "not_applicable",
+      "CHK-TEC-020": "unknown"
+    },
+    "obligation_conclusions": [],
     "summary": "not_assessed",
     "threshold_conclusions": [
       "may_require_professional_institution"
