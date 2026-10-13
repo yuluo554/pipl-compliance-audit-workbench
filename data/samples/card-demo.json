@@ -1,0 +1,24 @@
+{
+  "_note": "示例参数卡（合成数据）；scale 为示例规模值",
+  "audit_scope": {
+    "period": "示例期间",
+    "subject": "示例企业（虚构）"
+  },
+  "input_card": {
+    "has_consent_withdraw": false,
+    "has_policy": true,
+    "scale": 6000,
+    "sensitive": true,
+    "subject_type": "processor"
+  },
+  "manual_results": {
+    "CHK-DEMO-003": {
+      "note": "示例：部分字段未加密",
+      "state": "partial"
+    },
+    "CHK-DEMO-004": {
+      "note": "示例：渠道已设立",
+      "state": "compliant"
+    }
+  }
+}

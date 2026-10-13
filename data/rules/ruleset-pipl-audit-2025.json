@@ -1,0 +1,501 @@
+{
+  "basis": [
+    {
+      "code": "网信办令第18号",
+      "effective_date": "2025-05-01",
+      "source": {
+        "channel": "cac.gov.cn",
+        "checked_at": "2026-10-13",
+        "url": "https://www.cac.gov.cn/2025-02/14/c_1741233507681519.htm"
+      },
+      "status": "verified",
+      "title": "个人信息保护合规审计管理办法"
+    },
+    {
+      "code": "GB/T 35273-2020",
+      "effective_date": "2020-10-01",
+      "source": {
+        "channel": "openstd.samr.gov.cn",
+        "checked_at": "2026-10-13",
+        "url": ""
+      },
+      "status": "verified",
+      "title": "信息安全技术 个人信息安全规范"
+    },
+    {
+      "code": "GB/T 42574-2023",
+      "effective_date": "2023-12-01",
+      "source": {
+        "channel": "openstd.samr.gov.cn",
+        "checked_at": "2026-10-13",
+        "url": ""
+      },
+      "status": "verified",
+      "title": "信息安全技术 个人信息处理中告知和同意的实施指南"
+    }
+  ],
+  "checklist": [
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引2",
+        "basis": "网信办令第18号",
+        "point": "合法性基础审查（同意/单独同意/书面同意/免同意情形）"
+      },
+      "criteria": "合法性基础审查（同意/单独同意/书面同意/免同意情形）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-002",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "合法性基础审查（同意/单独同意/书面同意/免同意情形）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引3",
+        "basis": "网信办令第18号",
+        "point": "个人信息处理规则审查（告知完整性/最小必要/保存期限/权利途径）"
+      },
+      "criteria": "个人信息处理规则审查（告知完整性/最小必要/保存期限/权利途径）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-003",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "个人信息处理规则审查（告知完整性/最小必要/保存期限/权利途径）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引4",
+        "basis": "网信办令第18号",
+        "point": "告知义务审查（显著方式/清晰易懂/变更告知）"
+      },
+      "criteria": "告知义务审查（显著方式/清晰易懂/变更告知）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-004",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "告知义务审查（显著方式/清晰易懂/变更告知）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引5",
+        "basis": "网信办令第18号",
+        "point": "共同处理审查（权利义务约定/权益保护/事件报告）"
+      },
+      "criteria": "共同处理审查（权利义务约定/权益保护/事件报告）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-005",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "共同处理审查（权利义务约定/权益保护/事件报告）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引6",
+        "basis": "网信办令第18号",
+        "point": "委托处理审查（影响评估/合同约定/监督受托人）"
+      },
+      "criteria": "委托处理审查（影响评估/合同约定/监督受托人）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-006",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "委托处理审查（影响评估/合同约定/监督受托人）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引7",
+        "basis": "网信办令第18号",
+        "point": "个人信息转移审查（告知接收方名称/联系方式）"
+      },
+      "criteria": "个人信息转移审查（告知接收方名称/联系方式）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-007",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "个人信息转移审查（告知接收方名称/联系方式）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引8",
+        "basis": "网信办令第18号",
+        "point": "向他人提供个人信息审查（单独同意/告知/影响评估）"
+      },
+      "criteria": "向他人提供个人信息审查（单独同意/告知/影响评估）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-008",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "向他人提供个人信息审查（单独同意/告知/影响评估）"
+    },
+    {
+      "auto_field": null,
+      "category": "技术层",
+      "clause": {
+        "article": "附件指引9",
+        "basis": "网信办令第18号",
+        "point": "自动化决策审查（透明度/公平公正/拒绝机制/差别待遇）"
+      },
+      "criteria": "自动化决策审查（透明度/公平公正/拒绝机制/差别待遇）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-TEC-009",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "自动化决策审查（透明度/公平公正/拒绝机制/差别待遇）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引10",
+        "basis": "网信办令第18号",
+        "point": "公开个人信息审查（单独同意/影响评估）"
+      },
+      "criteria": "公开个人信息审查（单独同意/影响评估）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-010",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "公开个人信息审查（单独同意/影响评估）"
+    },
+    {
+      "auto_field": null,
+      "category": "技术层",
+      "clause": {
+        "article": "附件指引11",
+        "basis": "网信办令第18号",
+        "point": "公共场所图像/身份识别设备审查（公共安全必需/提示标识/单独同意）"
+      },
+      "criteria": "公共场所图像/身份识别设备审查（公共安全必需/提示标识/单独同意）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-TEC-011",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "公共场所图像/身份识别设备审查（公共安全必需/提示标识/单独同意）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引12",
+        "basis": "网信办令第18号",
+        "point": "已公开个人信息处理审查（禁发无关商业信息/禁网暴/拒绝处理）"
+      },
+      "criteria": "已公开个人信息处理审查（禁发无关商业信息/禁网暴/拒绝处理）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-012",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "已公开个人信息处理审查（禁发无关商业信息/禁网暴/拒绝处理）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引13",
+        "basis": "网信办令第18号",
+        "point": "敏感个人信息处理审查（单独同意/未成年人监护人同意/影响评估）"
+      },
+      "criteria": "敏感个人信息处理审查（单独同意/未成年人监护人同意/影响评估）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-013",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "敏感个人信息处理审查（单独同意/未成年人监护人同意/影响评估）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引14",
+        "basis": "网信办令第18号",
+        "point": "不满十四周岁未成年人信息审查（专门规则/告知/禁止强制同意）"
+      },
+      "criteria": "不满十四周岁未成年人信息审查（专门规则/告知/禁止强制同意）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-014",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "不满十四周岁未成年人信息审查（专门规则/告知/禁止强制同意）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引15",
+        "basis": "网信办令第18号",
+        "point": "向境外提供个人信息审查（安全评估/认证/标准合同/备案）"
+      },
+      "criteria": "向境外提供个人信息审查（安全评估/认证/标准合同/备案）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-015",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "向境外提供个人信息审查（安全评估/认证/标准合同/备案）"
+    },
+    {
+      "auto_field": null,
+      "category": "响应层",
+      "clause": {
+        "article": "附件指引16",
+        "basis": "网信办令第18号",
+        "point": "个人信息删除权保障审查（目的实现/注销/期限届满/撤回同意）"
+      },
+      "criteria": "个人信息删除权保障审查（目的实现/注销/期限届满/撤回同意）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-RES-016",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "个人信息删除权保障审查（目的实现/注销/期限届满/撤回同意）"
+    },
+    {
+      "auto_field": null,
+      "category": "响应层",
+      "clause": {
+        "article": "附件指引17",
+        "basis": "网信办令第18号",
+        "point": "个人权利保障审查（申请受理机制/及时响应/拒绝说明理由）"
+      },
+      "criteria": "个人权利保障审查（申请受理机制/及时响应/拒绝说明理由）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-RES-017",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "个人权利保障审查（申请受理机制/及时响应/拒绝说明理由）"
+    },
+    {
+      "auto_field": null,
+      "category": "响应层",
+      "clause": {
+        "article": "附件指引18",
+        "basis": "网信办令第18号",
+        "point": "处理规则解释说明审查（便捷途径/合理时间/通俗易懂）"
+      },
+      "criteria": "处理规则解释说明审查（便捷途径/合理时间/通俗易懂）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-RES-018",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "处理规则解释说明审查（便捷途径/合理时间/通俗易懂）"
+    },
+    {
+      "auto_field": null,
+      "category": "制度层",
+      "clause": {
+        "article": "附件指引19",
+        "basis": "网信办令第18号",
+        "point": "内部管理制度与操作规程审查（方针/组织架构/分类/应急/影响评估/投诉/权限/培训/履职/责任制）"
+      },
+      "criteria": "内部管理制度与操作规程审查（方针/组织架构/分类/应急/影响评估/投诉/权限/培训/履职/责任制）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-DOC-019",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "内部管理制度与操作规程审查（方针/组织架构/分类/应急/影响评估/投诉/权限/培训/履职/责任制）"
+    },
+    {
+      "auto_field": null,
+      "category": "技术层",
+      "clause": {
+        "article": "附件指引20",
+        "basis": "网信办令第18号",
+        "point": "安全技术措施审查（保密性完整性可用性/加密去标识化/操作权限）"
+      },
+      "criteria": "安全技术措施审查（保密性完整性可用性/加密去标识化/操作权限）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-TEC-020",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "安全技术措施审查（保密性完整性可用性/加密去标识化/操作权限）"
+    },
+    {
+      "auto_field": null,
+      "category": "制度层",
+      "clause": {
+        "article": "附件指引21",
+        "basis": "网信办令第18号",
+        "point": "教育培训计划审查（培训对象/考核/内容方式频率）"
+      },
+      "criteria": "教育培训计划审查（培训对象/考核/内容方式频率）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-DOC-021",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "教育培训计划审查（培训对象/考核/内容方式频率）"
+    },
+    {
+      "auto_field": null,
+      "category": "制度层",
+      "clause": {
+        "article": "附件指引22",
+        "basis": "网信办令第18号",
+        "point": "个人信息保护负责人履职审查（资质/职责/权限/联系方式公开）"
+      },
+      "criteria": "个人信息保护负责人履职审查（资质/职责/权限/联系方式公开）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-DOC-022",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "个人信息保护负责人履职审查（资质/职责/权限/联系方式公开）"
+    },
+    {
+      "auto_field": null,
+      "category": "流程层",
+      "clause": {
+        "article": "附件指引23",
+        "basis": "网信办令第18号",
+        "point": "个人信息保护影响评估审查（重大影响活动前/合法正当必要/风险/措施适应性）"
+      },
+      "criteria": "个人信息保护影响评估审查（重大影响活动前/合法正当必要/风险/措施适应性）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-PRO-023",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "个人信息保护影响评估审查（重大影响活动前/合法正当必要/风险/措施适应性）"
+    },
+    {
+      "auto_field": null,
+      "category": "响应层",
+      "clause": {
+        "article": "附件指引24",
+        "basis": "网信办令第18号",
+        "point": "安全事件应急预案审查（风险评估/组织保障/培训演练）"
+      },
+      "criteria": "安全事件应急预案审查（风险评估/组织保障/培训演练）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-RES-024",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "安全事件应急预案审查（风险评估/组织保障/培训演练）"
+    },
+    {
+      "auto_field": null,
+      "category": "响应层",
+      "clause": {
+        "article": "附件指引25",
+        "basis": "网信办令第18号",
+        "point": "安全事件应急响应处置审查（查明范围/通报/降低危害）"
+      },
+      "criteria": "安全事件应急响应处置审查（查明范围/通报/降低危害）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-RES-025",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "安全事件应急响应处置审查（查明范围/通报/降低危害）"
+    },
+    {
+      "auto_field": null,
+      "category": "制度层",
+      "clause": {
+        "article": "附件指引26",
+        "basis": "网信办令第18号",
+        "point": "平台规则审查（不与法规抵触/权责界定/执行抽样验证）"
+      },
+      "criteria": "平台规则审查（不与法规抵触/权责界定/执行抽样验证）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-DOC-026",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "平台规则审查（不与法规抵触/权责界定/执行抽样验证）"
+    },
+    {
+      "auto_field": null,
+      "category": "制度层",
+      "clause": {
+        "article": "附件指引27",
+        "basis": "网信办令第18号",
+        "point": "社会责任报告审查（组织架构/能力建设/措施成效/权利受理/独立监督/事件处理/科普）"
+      },
+      "criteria": "社会责任报告审查（组织架构/能力建设/措施成效/权利受理/独立监督/事件处理/科普）：符合/部分符合/不符合/不适用（依条款要点判定）",
+      "evidence_required": true,
+      "id": "CHK-DOC-027",
+      "method": "manual",
+      "only_if": null,
+      "status": "pending",
+      "title": "社会责任报告审查（组织架构/能力建设/措施成效/权利受理/独立监督/事件处理/科普）"
+    }
+  ],
+  "generated_at": "2026-10-13T00:00:00Z",
+  "ruleset_id": "pipl-audit-2025",
+  "schema_version": "1.0",
+  "thresholds": [
+    {
+      "clause": {
+        "article": "第四条",
+        "basis": "网信办令第18号",
+        "point": "处理超过1000万人个人信息的处理者，应当每两年至少开展一次合规审计"
+      },
+      "conclusion": "trigger_periodic_audit",
+      "frequency": "每两年至少开展一次合规审计",
+      "id": "TH-SCALE-PERIODIC",
+      "op": ">",
+      "param": "scale",
+      "severity": 1,
+      "source": {
+        "channel": "cac.gov.cn",
+        "checked_at": "2026-10-13",
+        "url": "https://www.cac.gov.cn/2025-02/14/c_1741233507681519.htm"
+      },
+      "status": "pending",
+      "value": 10000000
+    },
+    {
+      "clause": {
+        "article": "第十二条",
+        "basis": "网信办令第18号",
+        "point": "处理100万人以上个人信息的处理者应当指定个人信息保护负责人"
+      },
+      "conclusion": "require_personal_info_officer",
+      "frequency": "应当指定个人信息保护负责人",
+      "id": "TH-SCALE-OFFICER",
+      "op": ">=",
+      "param": "scale",
+      "severity": 1,
+      "source": {
+        "channel": "cac.gov.cn",
+        "checked_at": "2026-10-13",
+        "url": "https://www.cac.gov.cn/2025-02/14/c_1741233507681519.htm"
+      },
+      "status": "pending",
+      "value": 1000000
+    }
+  ],
+  "version": "2025.1"
+}

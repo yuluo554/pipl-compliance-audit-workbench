@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paudit"
+version = "0.1.0"
+description = "个人信息保护合规审计工作台：确定性门槛判定 + 版本化审计规则集 + 证据链指纹 + 报告导出（全本地、零上传）"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [{ name = "yuluo554" }]
+keywords = ["pipl", "compliance", "audit", "个人信息保护", "合规审计"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Security",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/yuluo554/pipl-compliance-audit-workbench"
+
+[project.scripts]
+paudit = "paudit.cli:main"
+
+[project.optional-dependencies]
+# 桌面形态（PySide6）
+gui = ["PySide6>=6.5,<6.7; python_version < '3.9'", "PySide6>=6.5; python_version >= '3.9'"]
+# 文档导出（DOCX/XLSX）
+report = ["python-docx>=0.8,<1.2", "openpyxl>=3.0,<4"]
+# 打包
+pkg = ["pyinstaller>=5.13,<6"]
+# 开发/测试（含测试期依赖与守门测试所需库）
+dev = [
+    "pytest>=7.0",
+    "pyyaml>=6.0",
+    "tomli>=2.0; python_version < '3.11'",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,0 +1,143 @@
+{
+  "_note": "示例规则包：门槛值为合成示例值，非法规门槛；仅供试用工具流程与演示，不得据以作出任何合规结论。权威规则包见 data/rules/。",
+  "basis": [
+    {
+      "code": "示例依据A",
+      "effective_date": "2025-01-01",
+      "source": {
+        "channel": "示例（合成值）",
+        "checked_at": "2026-10-13",
+        "url": ""
+      },
+      "status": "verified",
+      "title": "示例依据（合成）"
+    },
+    {
+      "code": "示例依据B",
+      "effective_date": "2020-01-01",
+      "source": {
+        "channel": "示例（合成值）",
+        "checked_at": "2026-10-13",
+        "url": ""
+      },
+      "status": "verified",
+      "title": "示例依据（合成）"
+    }
+  ],
+  "checklist": [
+    {
+      "auto_field": "has_policy",
+      "category": "制度层",
+      "clause": {
+        "article": "示例条3",
+        "basis": "示例依据B",
+        "point": "示例检查项"
+      },
+      "criteria": "已制定并公开=符合；未制定=不符合",
+      "evidence_required": true,
+      "id": "CHK-DEMO-001",
+      "method": "auto",
+      "only_if": null,
+      "status": "verified",
+      "title": "示例：已制定政策"
+    },
+    {
+      "auto_field": "has_consent_withdraw",
+      "category": "流程层",
+      "clause": {
+        "article": "示例条4",
+        "basis": "示例依据B",
+        "point": "示例检查项"
+      },
+      "criteria": "提供撤回入口=符合；未提供=不符合",
+      "evidence_required": true,
+      "id": "CHK-DEMO-002",
+      "method": "auto",
+      "only_if": null,
+      "status": "verified",
+      "title": "示例：撤回同意入口"
+    },
+    {
+      "auto_field": null,
+      "category": "技术层",
+      "clause": {
+        "article": "示例条5",
+        "basis": "示例依据B",
+        "point": "示例检查项"
+      },
+      "criteria": "由审计员录入四态",
+      "evidence_required": true,
+      "id": "CHK-DEMO-003",
+      "method": "manual",
+      "only_if": {
+        "sensitive": [
+          true
+        ]
+      },
+      "status": "verified",
+      "title": "示例：敏感信息加密"
+    },
+    {
+      "auto_field": null,
+      "category": "响应层",
+      "clause": {
+        "article": "示例条6",
+        "basis": "示例依据B",
+        "point": "示例检查项"
+      },
+      "criteria": "由审计员录入四态",
+      "evidence_required": true,
+      "id": "CHK-DEMO-004",
+      "method": "manual",
+      "only_if": null,
+      "status": "verified",
+      "title": "示例：投诉渠道"
+    }
+  ],
+  "generated_at": "2026-10-13T00:00:00Z",
+  "ruleset_id": "pipl-audit-demo",
+  "schema_version": "1.0",
+  "thresholds": [
+    {
+      "clause": {
+        "article": "示例条1",
+        "basis": "示例依据A",
+        "point": "示例门槛一"
+      },
+      "conclusion": "trigger_periodic_audit",
+      "frequency": "每两年至少一次（示例）",
+      "id": "TH-DEMO-PERIODIC",
+      "op": ">=",
+      "param": "scale",
+      "severity": 1,
+      "source": {
+        "channel": "示例（合成值）",
+        "checked_at": "2026-10-13",
+        "url": ""
+      },
+      "status": "verified",
+      "value": 5000
+    },
+    {
+      "clause": {
+        "article": "示例条2",
+        "basis": "示例依据A",
+        "point": "示例门槛二"
+      },
+      "conclusion": "require_professional_institution",
+      "frequency": "更高频次（示例）",
+      "id": "TH-DEMO-INSTITUTION",
+      "op": ">=",
+      "param": "scale",
+      "severity": 2,
+      "source": {
+        "channel": "示例（合成值）",
+        "checked_at": "2026-10-13",
+        "url": ""
+      },
+      "status": "verified",
+      "value": 50000
+    }
+  ],
+  "version": "2025.0"
+}
