@@ -1,7 +1,7 @@
 # 个人信息保护合规审计工作台（pipl-compliance-audit-workbench）
 
 > **本地目录** `10-13-pipl-compliance-audit-workbench`（`10-13` = 2026-10-13 日期标签）。**GitHub 仓库名** = `pipl-compliance-audit-workbench`（纯净名）。
-> **状态**：🚧 **M5 桌面交付 + 报告导出收口完成（2026-10-13）**——PySide6 **四页签**桌面应用（只消费引擎 API）、PyInstaller **onedir 双 exe**（GUI + CLI，版权红线三重守门）、报告导出 **MD/DOCX/XLSX**（模板两版，**逐字节可复现**）、技术报告入仓 [docs/技术报告.md](docs/技术报告.md)。真值库 **42 例**、基准 **206/206**、双解释器 **210 passed**、脱敏审计 HARD=0。下一棒 M6（脱敏发布 GitHub + Release）。
+> **状态**：✅ **v0.1.0 已发布（2026-10-14）**——M0–M6 全部收官。PySide6 **四页签**桌面应用（只消费引擎 API）、PyInstaller **onedir 双 exe**（GUI + CLI，版权红线三重守门）、报告导出 **MD/DOCX/XLSX**（模板两版，**逐字节可复现**）、技术报告 [docs/技术报告.md](docs/技术报告.md)。真值库 **42 例**、基准 **206/206**、双解释器 **210+ passed**、脱敏审计（四步）HARD=0。演示素材见 [docs/demo](docs/demo)。
 
 把「**是否触发审计义务 → 逐项怎么查 → 查到问题怎么留证 → 怎么出报告**」整条链做成**规则化、可复现、证据可追溯**的本地工作台（Windows 桌面 + CLI 双形态，全本地、零上传、默认不联网）。
 
@@ -88,6 +88,21 @@ python -m PyInstaller tools/paudit-gui.spec --noconfirm   # dist/paudit-gui/paud
 ```
 
 > **注意**：`data/samples/` 是**示例规则包**（门槛值为合成示例值，**非法规门槛**），仅用于试用工具流程与演示，**不得据以作出任何合规结论**。权威规则包在 `data/rules/`，M1 已逐条挂原文核对生效（26 检查项 + 4 门槛全 `verified`，见 [data/README.md](data/README.md) §一/§二）。
+
+## 演示
+
+![四页签演示](docs/demo/demo.gif)
+
+演示素材由 `tools/make_demo_assets.py` **离线合成**（零网络、零真实数据，一律用 `data/samples/` 示例规则包），重跑逐字节一致；含四页签截图与 CLI 基准卡片，产物清单与 sha256 见 [docs/demo/MANIFEST.json](docs/demo/MANIFEST.json)。
+
+| 截图 | 内容 |
+|---|---|
+| [触发判定](docs/demo/01-trigger.png) | 门槛结论 + 频次 + **义务分栏**（无条件义务 / 条件触发） |
+| [检查单](docs/demo/02-checklist.png) | 全项四态 + 说明 + 条款依据 |
+| [证据链](docs/demo/03-evidence.png) | 挂证（文件名 + sha256）+ 整改台账三字段 |
+| [报告导出](docs/demo/04-report.png) | MD/DOCX/XLSX + 模板两版 + 底稿自指纹 |
+| [CLI 基准](docs/demo/cli-bench.png) | `paudit bench` 权威规则包 **206/206** |
+
 
 ## CLI 命令与退出码
 

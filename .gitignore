@@ -18,6 +18,9 @@ output/
 reports/
 *.log
 
+# 临时工作区（本机 Git Bash 与 Python 路径不互通，临时文件写仓库内相对路径）
+.scratch/
+
 # 环境与密钥
 .env
 *.key

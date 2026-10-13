@@ -1,0 +1,35 @@
+{
+  "files": [
+    {
+      "bytes": 31742,
+      "file": "01-trigger.png",
+      "sha256": "c17da96761ecfd1b4ef5b0ebdb1eb2aceaa72e5f1cb76aa74a694ad3f608230e"
+    },
+    {
+      "bytes": 37066,
+      "file": "02-checklist.png",
+      "sha256": "2dacce3db396ae646a67f28ace0df73e8ddefc5587edcb9f53e1ce1cc01b7a41"
+    },
+    {
+      "bytes": 53776,
+      "file": "03-evidence.png",
+      "sha256": "5a580338f7b0bfc31b022c4516429b7e134199f9edce59ac14dd47f77eea4215"
+    },
+    {
+      "bytes": 30521,
+      "file": "04-report.png",
+      "sha256": "733284476cb511438f0ba157e77f5315c2b66749c7ffabf4339022d4ec58be7a"
+    },
+    {
+      "bytes": 123454,
+      "file": "demo.gif",
+      "sha256": "912d8a591935add53a73c6839800790e8d44fd4ff6c02931715ea3a8a29433ed"
+    },
+    {
+      "bytes": 56158,
+      "file": "cli-bench.png",
+      "sha256": "d9a8c17eacebd8a90d18ae92d0803518f8c6558a31ac60f9dddc0c6a7913d4e5"
+    }
+  ],
+  "generator": "tools/make_demo_assets.py"
+}
