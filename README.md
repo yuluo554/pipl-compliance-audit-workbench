@@ -1,7 +1,14 @@
 # 个人信息保护合规审计工作台（pipl-compliance-audit-workbench）
 
+[![CI](https://github.com/yuluo554/pipl-compliance-audit-workbench/actions/workflows/ci.yml/badge.svg)](https://github.com/yuluo554/pipl-compliance-audit-workbench/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/yuluo554/pipl-compliance-audit-workbench)](https://github.com/yuluo554/pipl-compliance-audit-workbench/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Python](https://img.shields.io/badge/python-3.8%20%7C%203.12-blue)
+
 > **本地目录** `10-13-pipl-compliance-audit-workbench`（`10-13` = 2026-10-13 日期标签）。**GitHub 仓库名** = `pipl-compliance-audit-workbench`（纯净名）。
-> **状态**：✅ **v0.1.0 已发布（2026-10-14）**——M0–M6 全部收官。PySide6 **四页签**桌面应用（只消费引擎 API）、PyInstaller **onedir 双 exe**（GUI + CLI，版权红线三重守门）、报告导出 **MD/DOCX/XLSX**（模板两版，**逐字节可复现**）、技术报告 [docs/技术报告.md](docs/技术报告.md)。真值库 **42 例**、基准 **206/206**、双解释器 **210+ passed**、脱敏审计（四步）HARD=0。演示素材见 [docs/demo](docs/demo)。
+> **状态**：✅ **v0.1.0 已发布（2026-10-14）**——M0–M6 全部收官。PySide6 **四页签**桌面应用（只消费引擎 API）、PyInstaller **onedir 双 exe**（GUI + CLI，版权红线三重守门）、报告导出 **MD/DOCX/XLSX**（模板两版，**逐字节可复现**）、技术报告 [docs/技术报告.md](docs/技术报告.md)。真值库 **42 例**、基准 **206/206**、双解释器 **223 passed**、脱敏审计（四步）HARD=0。演示素材见 [docs/demo](docs/demo)。
+
+**下载**：Windows 免安装版见 [Releases](https://github.com/yuluo554/pipl-compliance-audit-workbench/releases)——`paudit-cli-v0.1.0-win64.zip`（命令行，约 20 MB）、`paudit-gui-v0.1.0-win64.zip`（桌面应用，约 59 MB）。解压后直接运行 `paudit-cli.exe` / `paudit-gui.exe`，**无需装 Python**（首次运行 Windows SmartScreen 可能提示"未知发布者"，属未签名预期）。
 
 把「**是否触发审计义务 → 逐项怎么查 → 查到问题怎么留证 → 怎么出报告**」整条链做成**规则化、可复现、证据可追溯**的本地工作台（Windows 桌面 + CLI 双形态，全本地、零上传、默认不联网）。
 
