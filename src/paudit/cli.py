@@ -348,7 +348,24 @@ _DISPATCH = {
 }
 
 
+def _force_utf8_stdio():
+    """把 stdout/stderr 切到 UTF-8：CLI 输出含中文（结论文案、条款说明），
+    Windows 非 UTF-8 代码页（如 CI 运行器默认 cp1252）下 print 会
+    UnicodeEncodeError —— 工具本体不得因"终端编码"而崩。
+    仅在可 reconfigure 时生效（py3.7+ 且有真实流）；失败静默降级。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(encoding="utf-8")
+        except (ValueError, OSError):
+            pass
+
+
 def main(argv=None):
+    _force_utf8_stdio()
     parser = _build_parser()
     try:
         args = parser.parse_args(argv)

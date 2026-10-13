@@ -270,8 +270,8 @@ def _bench_output():
 
     proc = subprocess.run(
         [sys.executable, "-m", "paudit", "bench"],
-        capture_output=True, text=True, cwd=str(ROOT),
-        env=dict(os.environ, PYTHONPATH=str(SRC)))
+        capture_output=True, text=True, encoding="utf-8", errors="replace",
+        cwd=str(ROOT), env=dict(os.environ, PYTHONPATH=str(SRC)))
     return proc.stdout or (proc.stdout + proc.stderr)
 
 

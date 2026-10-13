@@ -207,6 +207,89 @@ def _has_report_extra():
 
 
 # ---------------------------------------------------------------------------
+# 非 UTF-8 locale（Windows CI 首跑实测缺陷）
+# ---------------------------------------------------------------------------
+def _non_utf8_env(encoding):
+    import os
+
+    env = dict(os.environ)
+    env["PYTHONUTF8"] = "0"           # 关掉 UTF-8 模式
+    env["PYTHONIOENCODING"] = encoding
+    return env
+
+
+def test_entry_points_survive_non_utf8_locale():
+    """CLI / 脱敏审计器在非 UTF-8 控制台编码下不得崩（M6 首跑 CI 实测缺陷）。
+
+    Windows CI 运行器默认 locale 为 cp1252：本仓源码/数据/输出含中文，
+    ① 打印中文即 UnicodeEncodeError；② 按 locale 解码子进程输出（git ls-files
+    的中文文件名）同样失败。首次 CI 三个 Windows job 有两个因此变红，Ubuntu 正常。
+    本地 zh-CN（GBK）恰好不触发，故必须**显式模拟**才守得住。
+    """
+    import subprocess
+    import sys
+
+    env = _non_utf8_env("cp1252")
+    cases = [
+        ([str(ROOT / "tools" / "audit_desensitize.py"), "tracked"], 0),
+        ([str(ROOT / "tools" / "audit_desensitize.py"), "selftest"], 0),
+    ]
+    for args, expect in cases:
+        r = subprocess.run([sys.executable] + args, capture_output=True, env=env,
+                           cwd=str(ROOT))
+        assert r.returncode == expect, \
+            "%s 在 cp1252 下 rc=%s（期望 %s）\n%s" % (
+                args[-1], r.returncode, expect,
+                r.stderr.decode("utf-8", "replace")[-500:])
+
+
+def test_cli_main_forces_utf8_stdio():
+    """CLI 入口须把 stdout/stderr 切到 UTF-8（否则 cp1252 下打印中文即崩）。"""
+    text = _text("src/paudit/cli.py")
+    assert "reconfigure" in text, "CLI 未做 stdout/stderr 编码兜底"
+    assert "utf-8" in text
+
+
+def test_cli_survives_non_utf8_locale_behaviorally():
+    """行为验证：cp1252 下跑 CLI（含中文输出）不得崩。
+
+    静态断言抓不到"兜底函数存在但没被调用"——必须真跑一次。
+    """
+    import subprocess
+    import sys
+
+    env = _non_utf8_env("cp1252")
+    env["PYTHONPATH"] = str(ROOT / "src")
+    r = subprocess.run([sys.executable, "-m", "paudit", "bench"], capture_output=True,
+                       env=env, cwd=str(ROOT))
+    assert r.returncode == 0, \
+        "cp1252 下 CLI bench 失败 rc=%s\n%s" % (
+            r.returncode, r.stderr.decode("utf-8", "replace")[-600:])
+
+
+
+def test_no_locale_dependent_subprocess_decode():
+    """子进程文本解码须显式指定编码，不得依赖 locale 默认。
+
+    否则 Windows（cp1252）解码含中文的输出即崩——且只在非 UTF-8 机器暴露。
+    允许的形态：同时出现 encoding= 参数，或用 bytes（capture_output 后自行解码）。
+    """
+    import re as _re
+
+    offenders = []
+    for rel in ("tools/audit_desensitize.py", "tools/gen_rulesets.py",
+                "tools/gen_scenarios.py", "tools/make_demo_assets.py",
+                "tests/test_repo_gate.py", "tests/test_gate_frozen.py"):
+        text = _text(rel)
+        for m in _re.finditer(r"subprocess\.\w+\((.*?)\)\s*$", text, _re.M | _re.S):
+            call = m.group(0)
+            if "text=True" in call and "encoding=" not in call:
+                offenders.append("%s: %s" % (rel, call.strip()[:80]))
+    assert not offenders, \
+        "subprocess 以 text=True 但未指定 encoding（locale 依赖）: %s" % offenders
+
+
+# ---------------------------------------------------------------------------
 # 脱敏审计四步入口
 # ---------------------------------------------------------------------------
 def test_audit_tool_supports_all_mode():

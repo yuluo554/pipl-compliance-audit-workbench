@@ -41,7 +41,7 @@ def test_generator_regenerates_byte_identical(tmp_path):
     """把生成器产物写到临时目录，与仓库内冻结产物逐字节比对。"""
     r = subprocess.run(
         [sys.executable, str(ROOT / "tools" / "gen_rulesets.py"), str(tmp_path)],
-        capture_output=True, text=True)
+        capture_output=True, text=True, encoding="utf-8", errors="replace")
     assert r.returncode == 0, r.stderr
 
     pairs = [
@@ -64,7 +64,7 @@ def test_generator_regenerates_byte_identical(tmp_path):
 
 def test_generator_output_is_lf(tmp_path):
     subprocess.run([sys.executable, str(ROOT / "tools" / "gen_rulesets.py"), str(tmp_path)],
-                   check=True, capture_output=True)
+                   check=True, capture_output=True, text=True, encoding="utf-8", errors="replace")
     for f in tmp_path.rglob("*.json"):
         assert b"\r" not in f.read_bytes()
 
@@ -76,7 +76,7 @@ def test_scenario_generator_regenerates_byte_identical(tmp_path):
     """把真值库写到临时目录，与仓库内 data/truth/ 逐字节比对。"""
     r = subprocess.run(
         [sys.executable, str(ROOT / "tools" / "gen_scenarios.py"), str(tmp_path)],
-        capture_output=True, text=True)
+        capture_output=True, text=True, encoding="utf-8", errors="replace")
     assert r.returncode == 0, r.stderr
 
     fresh_dir = tmp_path / "data" / "truth"
@@ -92,7 +92,7 @@ def test_scenario_generator_regenerates_byte_identical(tmp_path):
 
 def test_scenario_generator_output_is_lf(tmp_path):
     subprocess.run([sys.executable, str(ROOT / "tools" / "gen_scenarios.py"), str(tmp_path)],
-                   check=True, capture_output=True)
+                   check=True, capture_output=True, text=True, encoding="utf-8", errors="replace")
     for f in (tmp_path / "data" / "truth").glob("*.json"):
         assert b"\r" not in f.read_bytes()
 

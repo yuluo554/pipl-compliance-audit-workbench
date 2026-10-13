@@ -10,8 +10,11 @@ AUDIT = ROOT / "tools" / "audit_desensitize.py"
 
 
 def _run(mode):
+    # 显式 UTF-8：Windows CI 运行器 locale 为 cp1252，审计器输出含中文，
+    # 按 locale 解码会 UnicodeDecodeError（仅在 CI 首跑暴露）。
     return subprocess.run([sys.executable, str(AUDIT), mode],
-                          capture_output=True, text=True, cwd=str(ROOT))
+                          capture_output=True, text=True, encoding="utf-8",
+                          errors="replace", cwd=str(ROOT))
 
 
 def test_desensitize_selftest_positive_and_negative():

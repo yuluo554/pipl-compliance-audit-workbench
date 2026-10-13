@@ -4,6 +4,13 @@ on:
   push:
   pull_request:
 
+# 全局 UTF-8：Windows 运行器默认 locale 为 cp1252，而本仓库的源码、数据与 CLI 输出
+# 均含中文——不强制 UTF-8 会同时打挂「stdout 打印中文」与「按 locale 解码子进程输出」
+# 两条通路（本地 zh-CN 环境恰好看不出来，故只在 CI 首跑暴露）。
+env:
+  PYTHONUTF8: "1"
+  PYTHONIOENCODING: "utf-8"
+
 jobs:
   test:
     name: test (${{ matrix.os }} / py${{ matrix.python-version }})

@@ -504,8 +504,20 @@ def write_all(root):
     return out
 
 
+def _force_utf8_stdout():
+    """进程 stdout 强制 UTF-8：产物路径含中文，cp1252 locale 下 print 会
+    UnicodeEncodeError（Windows CI 运行器默认 locale；本地 zh-CN 看不出来）。"""
+    reconfigure = getattr(sys.stdout, "reconfigure", None)
+    if reconfigure is not None:
+        try:
+            reconfigure(encoding="utf-8")
+        except (ValueError, OSError):
+            pass
+
+
 def main(argv=None):
     argv = argv if argv is not None else sys.argv[1:]
+    _force_utf8_stdout()
     root = Path(argv[0]) if argv else Path(__file__).resolve().parent.parent
     for p in write_all(root):
         print("已生成: %s" % p)

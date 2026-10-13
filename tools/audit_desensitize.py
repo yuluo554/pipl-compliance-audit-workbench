@@ -25,6 +25,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ALLOW_MARK = "audit-allow"
 
+# 子进程文本解码一律显式 UTF-8：Windows CI 运行器 locale 默认 cp1252，
+# 而 git/生成器的输出含中文（仓内中文文件名、中文标签）——按 locale 解码会
+# UnicodeDecodeError（本地 GBK locale 恰好不崩，故只在 CI 首跑暴露）。
+# errors="replace" 兜底：极端字节也不得让审计器自身崩掉（审计器崩 = 无法出结论）。
+_SUBPROC_KW = {"text": True, "encoding": "utf-8", "errors": "replace"}
+
 # 模式一律用片段拼接构造，避免扫描器源码自命中
 _P = "Progra" + "mData"
 _U = "Users"
@@ -107,7 +113,7 @@ def _git_tracked():
     try:
         out = subprocess.run(
             ["git", "-c", "core.quotepath=false", "ls-files"],
-            cwd=str(ROOT), capture_output=True, text=True, check=True).stdout
+            cwd=str(ROOT), capture_output=True, check=True, **_SUBPROC_KW).stdout
     except (subprocess.CalledProcessError, FileNotFoundError, OSError):
         return None
     return out.splitlines()
@@ -156,7 +162,7 @@ def scan_history():
     findings = []
     proc = subprocess.run(
         ["git", "log", "--all", "-p", "--format=commit %H"],
-        cwd=str(ROOT), capture_output=True, text=True)
+        cwd=str(ROOT), capture_output=True, **_SUBPROC_KW)
     if proc.returncode != 0:
         return findings
     _scan_text(proc.stdout, "<history>", findings)
@@ -167,7 +173,7 @@ def scan_messages():
     findings = []
     proc = subprocess.run(
         ["git", "log", "--all", "--format=%H%n%s%n%b"],
-        cwd=str(ROOT), capture_output=True, text=True)
+        cwd=str(ROOT), capture_output=True, **_SUBPROC_KW)
     if proc.returncode != 0:
         return findings
     _scan_text(proc.stdout, "<messages>", findings)
@@ -227,8 +233,20 @@ def _report(findings, modes):
     return 0
 
 
+def _force_utf8_stdout():
+    """stdout 强制 UTF-8：报告含中文标签，cp1252 locale 下 print 自身就会
+    UnicodeEncodeError —— 审计器崩掉等于出不了结论（CI 运行器默认即此 locale）。"""
+    reconfigure = getattr(sys.stdout, "reconfigure", None)
+    if reconfigure is not None:
+        try:
+            reconfigure(encoding="utf-8")
+        except (ValueError, OSError):
+            pass
+
+
 def main(argv=None):
     argv = argv if argv is not None else sys.argv[1:]
+    _force_utf8_stdout()
     mode = argv[0] if argv else "all"
     if mode == "selftest":
         return selftest()
