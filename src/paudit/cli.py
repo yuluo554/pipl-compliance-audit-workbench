@@ -222,6 +222,7 @@ def cmd_evidence(args):
         print("已挂证 %s → %s（sha256 %s…）" % (item_id, ev.file_ref, ev.sha256[:12]))
 
     mismatches = []
+    missing = []
     if args.check:
         # 证据正文只登记文件名（脱敏纪律）；核对时按"底稿所在目录 → 当前目录"定位
         bases = [Path(args.draft).resolve().parent, Path.cwd()]
@@ -233,26 +234,35 @@ def cmd_evidence(args):
                     continue
                 target = _locate_evidence(ref, bases)
                 if target is None:
+                    # 找不到 ≠ 通过：缺失证据计入未核对，与"篡改"同为复核失败（exit 1）
+                    missing.append("%s (%s)" % (ev.get("evidence_id"), ref))
                     continue
                 checked += 1
                 if not verify_evidence_record(ev, target):
                     mismatches.append("%s (%s)" % (ev.get("evidence_id"), ref))
         print("已核对 %d 条证据指纹" % checked)
+        if missing:
+            print("未找到证据文件 %d 条: %s" % (len(missing), ", ".join(missing)),
+                  file=sys.stderr)
         if mismatches:
             print("指纹不匹配: %s" % ", ".join(mismatches), file=sys.stderr)
+        if missing or mismatches:
             return EXIT_NONCOMPLIANT
 
-    out = args.out or args.draft
+    # --check 是只读复核：未显式给 --out 时不写回输入（避免隐藏的规范化重写）。
+    # 只有挂证（确实改了正文）或显式 --out 才落盘。
     if pairs:
         # 挂证改变了底稿正文 → 旧自指纹失效；清除以免留下"看似有效"的陈旧指纹。
         # 需固化新指纹时用 `draft export` 重新导出。
         data.pop("draft_sha256", None)
-    with open(out, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write(json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True))
-    if pairs:
-        print("底稿已写出: %s（自指纹已清除；如需固化请跑 draft export）" % out)
-    else:
-        print("底稿已写出: %s" % out)
+    if pairs or args.out:
+        out = args.out or args.draft
+        with open(out, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True))
+        if pairs:
+            print("底稿已写出: %s（自指纹已清除；如需固化请跑 draft export）" % out)
+        else:
+            print("底稿已写出: %s" % out)
     return EXIT_OK
 
 

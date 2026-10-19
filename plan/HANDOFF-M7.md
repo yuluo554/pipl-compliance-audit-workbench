@@ -10,12 +10,13 @@
 - **Release**：**v0.1.0**（2026-10-14）——4 个附件：
   `paudit-cli-v0.1.0-win64.zip`（20.3 MB）、`paudit-gui-v0.1.0-win64.zip`（58.5 MB）、
   `demo.gif`、`cli-bench.png`。
-- **CI**：`.github/workflows/ci.yml` 三矩阵（windows py3.8 / windows py3.12 / ubuntu py3.12），
+- **CI**：`.github/workflows/ci.yml` 矩阵（windows py3.12 / ubuntu py3.12）+ `gui-smoke` job
+  （windows py3.12，offscreen 真跑 3 项 GUI 冒烟）；收集数断言 232（无 gui）/ 235（有 gui）。
   **复跑 run `38480212333` 全绿**（首跑 run `38479282274` 曾因 cp1252 locale 失败，已修）。
-- **topics**：`pipl` / `personal-information-protection` / `compliance` / `compliance-audit` /
-  `audit` / `pyside6` / `python` / `desktop-app`。
+- **topics**（2026-10-19 `gh api .../topics` 实测 **7 个**）：`pipl` / `personal-information-protection` /
+  `compliance` / `audit` / `pyside6` / `python` / `desktop-app`。
 - **README**：状态行 ✅ + CI/Release/License/Python 徽章 + 「下载」段 + 「演示」段（内联 GIF）。
-- **测试规模**：**227 passed / 0 skipped**（py3.8 与 py3.12）；基准 **206/206**；
+- **测试规模**：**235 passed / 0 skipped**（py3.12）；基准 **206/206**；
   脱敏审计四步 **HARD=0**；G1–G13 全绿。
 
 ## 二、M6 关键实录（后续维护须知道的三件事）
@@ -41,7 +42,7 @@
 | 2 | **两标准章节条号补齐** | 受版权保护未能核对（M1 结论）。若获正式文本/授权渠道，可按章条细化检查项 `clause` | 中（依赖外部） |
 | 3 | **报告模板扩展** | 现两版（self/third_party）。可增"监管报送版"（按某地网信办口径） | 小 |
 | 4 | **台账统计视图** | `ledger_summary` 已有计数，报告可加"整改完成率"趋势段 | 小 |
-| 5 | **CI 增 ubuntu py3.8** | 现 ubuntu 仅 3.12（PySide6 在 3.8 的 wheel 可用性待验） | 小 |
+| 5 | ~~CI 增 ubuntu py3.8~~ | 已随 D-3 抬到 `requires-python >=3.12` 废止 | — |
 | 6 | **代码签名** | Release exe 未签名 → SmartScreen 提示。需证书（成本/资质） | 大（外部） |
 | 7 | **冻结产物可复现跨平台核验** | 现 G5/G5b 仅本地核对；可在 CI 加"重跑生成器 → `git diff --exit-code`" | 小 |
 
@@ -83,14 +84,14 @@
   **无系统时钟**（`GENERATED_AT` 固定常量）、键排序、LF、末尾换行。
 - **门槛数值只在生成器**：核心源码（引擎/基准/前端）零门槛字面量（G1，含注释与文档字符串）。
 - **status 单点门控 + 出处门控**：`effective_ruleset()` 拒绝 `status != verified` 与 `verified 但缺出处`。
-- **测试全离线**：无 API、无网络；双解释器（3.8/3.12）均需全绿。
+- **测试全离线**：无 API、无网络；Python 3.12 全绿。
 - **`.gitattributes` `* text=auto eol=lf`** + 冻结产物无 CR（G4）；`*.png`/`*.gif` 标 binary。
 
 ## 五、本机环境坑（实测，续接必读）
 
 | 坑 | 实录 | 处置 |
 |---|---|---|
-| `python` 命令不可用 | `where python` 指向 WindowsApps 存根 | 一律 `py -3.12` / `py -3.8` 显式指定 |
+| `python` 命令不可用 | `where python` 指向 WindowsApps 存根 | 一律 `py -3.12` 显式指定 |
 | WebSearch 不可用 | 当前模型无原生 WebSearch | 法规查证一律 `curl -s -L <url>` 直连落盘 + 本地提取 |
 | `Path.write_text(newline=)` 在 py3.8 报错 | `TypeError`（该参数 3.10 才加） | 写 LF 文本一律用 `open(path, "w", encoding="utf-8", newline="\n")` |
 | `tomllib` 在 py<3.11 缺失 | 守门测试 G7 在 3.8 会 skip | dev extra 有 `tomli>=2.0; python_version < '3.11'` |
@@ -110,7 +111,7 @@
 - [x] 干净环境验证（`git archive` 树 → venv → 逐字执行 README 快速开始全链）
       ——并**抓出修复 3 处真实缺陷**（README 输入夹具缺失 ×2、缺 extra 用例硬失败、CI 未装 `[report]`）
 - [x] Release（**v0.1.0**：onedir 双 exe 压缩包 + 演示 GIF/截图，4 附件）
-- [x] 仓库 topics（8 个）
+- [x] 仓库 topics（7 个）
 - [x] README 状态行转正（🚧 → ✅，去掉"下一棒"）+ 徽章 + 下载/演示段
 - [x] 发布后复核（下载 release 附件 → 冻结态 `paudit-cli.exe bench` **206/206**；全链 exit 码正确；GUI exe 进事件循环）
 - [x] `gh run list` 对账（首跑失败 → 修复 → 复跑三矩阵全绿，据实补记真 CI 结论）
@@ -124,7 +125,6 @@
 ```bash
 # 解释器（本机 python 不可用，用 py）
 py -3.12 -m pytest -q
-py -3.8  -m pytest -q
 
 # 基准 / 脱敏审计（发布前必跑四步）
 py -3.12 -m paudit bench                 # 权威包 206/206

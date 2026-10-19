@@ -3,12 +3,12 @@
 [![CI](https://github.com/yuluo554/pipl-compliance-audit-workbench/actions/workflows/ci.yml/badge.svg)](https://github.com/yuluo554/pipl-compliance-audit-workbench/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/yuluo554/pipl-compliance-audit-workbench)](https://github.com/yuluo554/pipl-compliance-audit-workbench/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Python](https://img.shields.io/badge/python-3.8%20%7C%203.12-blue)
+![Python](https://img.shields.io/badge/python-3.12-blue)
 
 > **本地目录** `10-13-pipl-compliance-audit-workbench`（`10-13` = 2026-10-13 日期标签）。**GitHub 仓库名** = `pipl-compliance-audit-workbench`（纯净名）。
-> **状态**：✅ **v0.1.0 已发布（2026-10-14）**——M0–M6 全部收官。PySide6 **四页签**桌面应用（只消费引擎 API）、PyInstaller **onedir 双 exe**（GUI + CLI，版权红线三重守门）、报告导出 **MD/DOCX/XLSX**（模板两版，**逐字节可复现**）、技术报告 [docs/技术报告.md](docs/技术报告.md)。真值库 **42 例**、基准 **206/206**、双解释器 **223 passed**、脱敏审计（四步）HARD=0。演示素材见 [docs/demo](docs/demo)。
+> **状态**：✅ **v0.1.1 已发布（2026-10-19）**——M0–M6 全部收官 + 二次迭代收口（证据复核三态、PyInstaller 6.x 打包可用、产物去 PIL、CI 覆盖 GUI、py3.12 下限）。PySide6 **四页签**桌面应用（只消费引擎 API）、PyInstaller **onedir 双 exe**（GUI + CLI，版权红线三重守门）、报告导出 **MD/DOCX/XLSX**（模板两版，**逐字节可复现**）、技术报告 [docs/技术报告.md](docs/技术报告.md)。真值库 **42 例**、基准 **206/206**、py3.12 **235 passed**、脱敏审计（四步）HARD=0。演示素材见 [docs/demo](docs/demo)。
 
-**下载**：Windows 免安装版见 [Releases](https://github.com/yuluo554/pipl-compliance-audit-workbench/releases)——`paudit-cli-v0.1.0-win64.zip`（命令行，约 20 MB）、`paudit-gui-v0.1.0-win64.zip`（桌面应用，约 59 MB）。解压后直接运行 `paudit-cli.exe` / `paudit-gui.exe`，**无需装 Python**（首次运行 Windows SmartScreen 可能提示"未知发布者"，属未签名预期）。
+**下载**：Windows 免安装版见 [Releases](https://github.com/yuluo554/pipl-compliance-audit-workbench/releases)——`paudit-cli-v0.1.1-win64.zip`（命令行，约 14 MB）、`paudit-gui-v0.1.1-win64.zip`（桌面应用，约 55 MB）。解压后直接运行 `paudit-cli.exe` / `paudit-gui.exe`，**无需装 Python**（首次运行 Windows SmartScreen 可能提示"未知发布者"，属未签名预期）。
 
 把「**是否触发审计义务 → 逐项怎么查 → 查到问题怎么留证 → 怎么出报告**」整条链做成**规则化、可复现、证据可追溯**的本地工作台（Windows 桌面 + CLI 双形态，全本地、零上传、默认不联网）。
 
@@ -27,7 +27,7 @@ LLM 聊天给不了持久检查单、结构化底稿与证据指纹；本工具�
 - **版本化审计规则集**：规则包按 `依据文件 × 版本` 组织、JSON 化、生成器产出、禁手改；条款变更即升版本；切换版本即切换检查单与门槛值。
 - **审计检查单引擎**：以办法附件《审计指引》**27 项审查要点**为骨架，分制度/流程/技术/响应四层；支持自动核查项与人工核查项。自动核查项的"取值 → 四态"映射**收进规则包**（`auto_mapping`），引擎零业务字面量；《指引》中"应当制定/应当采取"类**无条件义务项未制定即判不符合**（不误记"不适用"）。
 - **判定语义分层**（不误报合规）：`compliant`/`partial`/`noncompliant`/`not_applicable`（不适用）+ `unknown`（未观测）；**一条都不适用或都没评 → `not_assessed`（未评估），绝不输出 `compliant`**。
-- **证据链留痕**：结论挂本地证据引用 + **sha256 指纹**固化进底稿；底稿导出产物自身也挂指纹（"底稿被改动即可检出"）；底稿可整体导出/导入，**导入三重校验**（自指纹 + `schema_version` + `ruleset_id`）+ **往返一致性**（离线重算结论须与底稿一致）；`evidence --check` 可复核证据文件指纹。证据仅登记文件名与指纹，**不落真实内容副本**。
+- **证据链留痕**：结论挂本地证据引用 + **sha256 指纹**固化进底稿；底稿导出产物自身也挂指纹（"底稿被改动即可检出"）；底稿可整体导出/导入，**导入三重校验**（自指纹 + `schema_version` + `ruleset_id`）+ **往返一致性**（离线重算结论须与底稿一致）；`evidence --check` 可复核证据文件指纹（比对只读，不写回底稿；证据文件缺失计入未核对并 exit 1，与指纹不匹配同级）。证据仅登记文件名与指纹，**不落真实内容副本**。
 - **问题分级与整改台账**：高风险/中风险（挂条款依据），台账可填 `owner`/`due`/`status`（待整改/整改中/已整改/已豁免）并导出 CSV；台账**只补责任落实，不覆写**分级与依据。
 - **报告导出（三格式、模板两版、可复现）**：Markdown（核心零依赖）+ DOCX/XLSX（可选 extra）；三格式共用**单一内容源**（`report/model.py`），故同一底稿在三产物里结论一致；报告头固定输出**规则包坐标**；模板可配置（企业自审版 / 第三方机构版）。DOCX/XLSX 落盘后经 `report/docxutil.py` 统一收口（固定 zip 时间戳 + `create_system=0` + 固定 core.xml 时间戳），**逐字节可复现**。
 - **桌面应用（PySide6，四页签）**：触发判定 / 检查单 / 证据链 / 报告导出；界面拆为**纯 Python 数据面**（`gui/session.py`，零 Qt、可无头测试）与 **Qt 装配层**，**只消费引擎 API、零判定逻辑**。
@@ -54,7 +54,7 @@ flowchart TD
 ## 快速开始
 
 ```bash
-# 需要 Python 3.8+（Windows 用 py 启动器显式指定：py -3.12 / py -3.8）
+# 需要 Python 3.12+（Windows 用 py 启动器显式指定：py -3.12）
 py -3.12 -m venv .venv
 .venv\Scripts\activate          # Windows；Linux/macOS: source .venv/bin/activate
 python -m pip install -U pip
@@ -91,10 +91,13 @@ python -m pytest -q
 **打包发行（onedir 双 exe）**：
 
 ```bash
+# 需 PyInstaller 6.22+（5.x 依赖已被 setuptools>=81 移除的 pkg_resources）
 python -m pip install -e ".[gui,report,pkg]"
 python -m PyInstaller tools/paudit-cli.spec --noconfirm   # dist/paudit-cli/paudit-cli.exe
 python -m PyInstaller tools/paudit-gui.spec --noconfirm   # dist/paudit-gui/paudit-gui.exe
 ```
+
+> 发布附件（两个 zip）可用 `python tools/release_assets.py pack` 复跑；`ledger` 子命令输出附件 sha256 与字节数。
 
 > **注意**：`data/samples/` 是**示例规则包**（门槛值为合成示例值，**非法规门槛**），仅用于试用工具流程与演示，**不得据以作出任何合规结论**。权威规则包在 `data/rules/`，M1 已逐条挂原文核对生效（26 检查项 + 4 门槛全 `verified`，见 [data/README.md](data/README.md) §一/§二）。
 
@@ -120,7 +123,7 @@ python -m PyInstaller tools/paudit-gui.spec --noconfirm   # dist/paudit-gui/paud
 | `check <参数卡>` | 单件审计（门槛 + 检查单）；`--draft` 以底稿形态导出；`--evidence 检查项=文件` 挂证 | 0=全部符合 / 1=检出非合规或未评估 / 2=输入不可用 |
 | `bench [--ruleset R] [--json]` | 跑内置基准（`--json` 输出指标 `metrics` 与门值 `gates`） | 0=达标 / 1=未达标或门控拦截 / 2=用法错误 |
 | `report <底稿> -o <输出>` | 导出报告（`.md` / `.docx` / `.xlsx`），`--template self|third_party` | 0=完成 / 2=输入不可用 / 3=缺文档导出依赖 |
-| `evidence <底稿> --add 检查项=文件` | 证据挂载（sha256 固化）；`--check` 复核已挂证据指纹 | 0=完成 / 1=指纹不匹配 / 2=输入不可用 |
+| `evidence <底稿> --add 检查项=文件` | 证据挂载（sha256 固化）；`--check` 复核已挂证据指纹（只读，不写回） | 0=全部核对通过 / 1=指纹不匹配或证据缺失 / 2=输入不可用 |
 | `draft export <输入> -o <底稿>` | 导出底稿并固化自指纹（写 `.evidence.json`） | 0=完成 / 2=输入不可用 |
 | `draft import <底稿>` | 导入底稿：校验自指纹/schema/ruleset + 往返一致性 | 0=通过 / 1=结论漂移 / 2=校验不通过 |
 | `ledger <底稿> [--apply 台账] [-o out.csv]` | 整改台账填写 / 导出（CSV） | 0=完成 / 2=输入不可用 |
@@ -128,7 +131,7 @@ python -m PyInstaller tools/paudit-gui.spec --noconfirm   # dist/paudit-gui/paud
 
 ## 评测基准
 
-四类套件（B1 门槛边界 / B2 检查项自洽 / B3 合成场景 / B4 四态判定覆盖）由 `python -m paudit bench` **一条命令跑全**，零 API 依赖、可重复；权威规则包上 **206/206**、全量单次约 **0.08 秒**（含解释器启动）。
+四类套件（B1 门槛边界 / B2 检查项自洽 / B3 合成场景 / B4 四态判定覆盖）由 `python -m paudit bench` **一条命令跑全**，零 API 依赖、可重复；权威规则包上 **206/206**、全量单次约 **0.14 秒**（含解释器启动；参考值，随机器变化）。
 
 | 基准 | 内容 | 断言数 | 指标 |
 |---|---|---|---|

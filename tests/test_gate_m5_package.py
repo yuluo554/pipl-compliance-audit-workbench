@@ -128,6 +128,40 @@ def test_specs_declare_dual_entries():
     assert "PySide6" in cli, "CLI spec 应显式排除 PySide6（精简产物）"
 
 
+def test_specs_exclude_pil():
+    """两个 spec 必须显式排除 PIL（openpyxl 的可选图像依赖，审计/报告路径不需要）。"""
+    for name in ("paudit-gui.spec", "paudit-cli.spec"):
+        text = (TOOLS / name).read_text(encoding="utf-8")
+        assert '"PIL"' in text, "%s 的 excludes 未排除 PIL" % name
+
+
+def test_build_data_flags_pil_in_built_dist(tmp_path):
+    """构建后扫描：产物树出现 PIL/ 即失败（防 excludes 失效后静默发胖产物）。"""
+    import sys
+
+    sys.path.insert(0, str(TOOLS))
+    try:
+        import build_data
+    finally:
+        sys.path.pop(0)
+
+    import pytest
+
+    clean = tmp_path / "clean"
+    clean.mkdir()
+    (clean / "paudit-cli.exe").write_bytes(b"x")
+    assert build_data.scan_dist_for_unwanted_packages(clean) == []
+    assert build_data.verify_built_dist(clean) is True
+
+    dirty = tmp_path / "dirty"
+    (dirty / "PIL").mkdir(parents=True)
+    (dirty / "PIL" / "Image.py").write_text("x", encoding="utf-8")
+    hits = build_data.scan_dist_for_unwanted_packages(dirty)
+    assert any(h.startswith("PIL") for h in hits)
+    with pytest.raises(build_data.BuildError):
+        build_data.verify_built_dist(dirty)
+
+
 # ---------------------------------------------------------------------------
 # 报告分派与 CLI
 # ---------------------------------------------------------------------------

@@ -33,6 +33,10 @@ FORBIDDEN_NAME_PATTERNS = (
     "*knowledge*raw*",
 )
 
+# 冻结产物中不允许出现的包目录（spec 已 excludes；此处按产物树再守一道）
+# PIL 是 openpyxl 的**可选**图像依赖，本工具的报告/审计路径不需要它。
+UNWANTED_DIST_PREFIXES = ("PIL",)
+
 
 class BuildError(RuntimeError):
     """打包配置非法（命中禁区）。"""
@@ -94,3 +98,31 @@ def scan_dist_for_forbidden(dist_dir):
                 hits.append(rel)
                 break
     return hits
+
+
+def scan_dist_for_unwanted_packages(dist_dir):
+    """扫描产物树中已显式 excludes 的包目录（空列表 = 干净）。"""
+    dist = Path(dist_dir)
+    hits = []
+    if not dist.exists():
+        return hits
+    for p in dist.rglob("*"):
+        rel = _norm(p.relative_to(dist))
+        for prefix in UNWANTED_DIST_PREFIXES:
+            if rel == prefix or rel.startswith(prefix + "/"):
+                hits.append(rel)
+                break
+    return hits
+
+
+def verify_built_dist(dist_dir):
+    """构建后检查：产物若夹带已排除的包（如 PIL）即抛 `BuildError`。
+
+    由两个 spec 在 COLLECT 之后调用——excludes 失效（依赖链隐式拉入）时构建
+    直接失败，而不是发出一个"看起来正常"的胖产物。
+    """
+    hits = scan_dist_for_unwanted_packages(dist_dir)
+    if hits:
+        raise BuildError("冻结产物夹带已排除的依赖包: %s（检查 spec 的 excludes）"
+                         % ", ".join(hits[:5]))
+    return True

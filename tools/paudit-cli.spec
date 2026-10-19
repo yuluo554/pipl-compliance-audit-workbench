@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(SPECPATH).resolve().parent  # SPECPATH = tools/，其父即仓库根
 sys.path.insert(0, str(ROOT / "tools"))
 
-from build_data import collect_data_sources  # noqa: E402
+from build_data import collect_data_sources, verify_built_dist  # noqa: E402
 
 datas = collect_data_sources(ROOT)
 
@@ -27,7 +27,7 @@ a = Analysis(
                    "paudit.engine.pipeline", "paudit.report"],
     hookspath=[],
     runtime_hooks=[],
-    excludes=["tkinter", "matplotlib", "numpy", "pandas", "PySide6"],
+    excludes=["tkinter", "matplotlib", "numpy", "pandas", "PySide6", "PIL"],
     noarchive=False,
 )
 pyz = PYZ(a.pure)
@@ -52,3 +52,6 @@ coll = COLLECT(
     upx=False,
     name="paudit-cli",
 )
+
+# 构建后检查：冻结产物不得夹带已显式排除的 PIL（openpyxl 的可选图像依赖）
+verify_built_dist(Path(DISTPATH) / "paudit-cli")

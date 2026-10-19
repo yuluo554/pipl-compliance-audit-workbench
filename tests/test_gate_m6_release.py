@@ -14,6 +14,8 @@
 import ast
 import re
 
+import pytest
+
 from conftest import ROOT
 
 DOCS_DEMO = ROOT / "docs" / "demo"
@@ -298,6 +300,66 @@ def test_audit_tool_supports_all_mode():
         assert mode in text, "脱敏审计器缺模式: %s" % mode
     assert '"all"' in text or "'all'" in text, "脱敏审计器缺 all 汇总模式"
     assert "audit-allow" in text, "脱敏审计器缺行内放行标记"
+
+
+# ---------------------------------------------------------------------------
+# CI 覆盖 GUI + 收集数对账 + actions 版本
+# ---------------------------------------------------------------------------
+def _ci_workflow():
+    yaml = pytest.importorskip("yaml")
+    return yaml.safe_load(_text(".github/workflows/ci.yml"))
+
+
+def _job_runs(job):
+    return [str(step.get("run", "")) for step in job.get("steps", [])]
+
+
+def test_ci_has_gui_job_running_smoke():
+    """CI 必须真装 gui extra 并跑 test_gui_smoke（不得永远因 importorskip 跳过）。"""
+    data = _ci_workflow()
+    matched = []
+    for name, job in data["jobs"].items():
+        runs = "\n".join(_job_runs(job))
+        if "test_gui_smoke.py" in runs:
+            matched.append((name, job, runs))
+    assert matched, "CI 无 job 运行 tests/test_gui_smoke.py"
+    for name, job, runs in matched:
+        assert ".[dev,gui,report]" in runs, "job %s 未安装 gui extra" % name
+        env = dict(data.get("env") or {})
+        env.update(job.get("env") or {})
+        assert env.get("QT_QPA_PLATFORM") == "offscreen", \
+            "job %s 缺 QT_QPA_PLATFORM=offscreen" % name
+
+
+def test_ci_asserts_collect_counts():
+    """无 gui / 有 gui 两个收集数都要被显式断言（防"少跑了仍然绿"）。"""
+    data = _ci_workflow()
+    runs = "\n".join(r for job in data["jobs"].values() for r in _job_runs(job))
+    assert "--collect-only" in runs, "CI 未做收集数对账"
+    assert '"232"' in runs, "CI 未断言无 gui 收集数 232"
+    assert '"235"' in runs, "CI 未断言有 gui 收集数 235"
+
+
+def test_ci_actions_are_v7():
+    data = _ci_workflow()
+    uses = [str(step.get("uses", "")) for job in data["jobs"].values()
+            for step in job.get("steps", [])]
+    assert any(u.startswith("actions/checkout@v7") for u in uses), "checkout 未升 v7"
+    assert any(u.startswith("actions/setup-python@v7") for u in uses), \
+        "setup-python 未升 v7"
+    stale = [u for u in uses
+             if re.match(r"actions/(checkout|setup-python)@v[0-6]\b", u)]
+    assert not stale, "CI 仍有旧版 actions: %s" % stale
+
+
+def test_ci_matrix_matches_python_floor():
+    """D-3：运行时下限 3.12 → CI 不得再跑 3.8。"""
+    data = _ci_workflow()
+    include = data["jobs"]["test"]["strategy"]["matrix"]["include"]
+    versions = [str(m.get("python-version")) for m in include]
+    assert "3.8" not in versions, "CI 仍在跑已 EOL 的 Python 3.8"
+    assert versions and set(versions) == {"3.12"}, "CI 矩阵应为 py3.12: %s" % versions
+    assert 'requires-python = ">=3.12"' in _text("pyproject.toml")
 
 
 # ---------------------------------------------------------------------------

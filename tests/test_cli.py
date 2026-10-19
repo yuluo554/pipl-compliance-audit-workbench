@@ -171,6 +171,37 @@ def test_evidence_subcommand_add_and_check(tmp_path):
     assert main(["evidence", str(draft), "--check"]) == 1
 
 
+def test_evidence_check_missing_file_exit1(tmp_path, capsys):
+    """证据文件缺失 ≠ 通过：计入未核对并 exit 1（与篡改同级）。"""
+    ev_file = tmp_path / "ev.txt"
+    ev_file.write_text("evidence body", encoding="utf-8")
+    draft = _check_draft(tmp_path)
+    assert main(["evidence", str(draft), "--add", "CHK-DEMO-001=%s" % ev_file]) == 0
+    ev_file.unlink()
+    assert main(["evidence", str(draft), "--check"]) == 1
+    err = capsys.readouterr().err
+    assert "未找到证据文件 1 条" in err
+
+
+def test_evidence_check_is_read_only(tmp_path):
+    """`--check` 无 --out 时不得写回输入：非规范格式的文件 sha256 必须不变。"""
+    import hashlib
+
+    ev_file = tmp_path / "ev.txt"
+    ev_file.write_text("evidence body", encoding="utf-8")
+    draft = _check_draft(tmp_path)
+    assert main(["evidence", str(draft), "--add", "CHK-DEMO-001=%s" % ev_file]) == 0
+
+    # 构造成非规范格式（indent=4），以暴露任何隐藏的规范化重写
+    data = json.loads(draft.read_text(encoding="utf-8"))
+    draft.write_text(json.dumps(data, ensure_ascii=False, indent=4), encoding="utf-8")
+    before = hashlib.sha256(draft.read_bytes()).hexdigest()
+
+    assert main(["evidence", str(draft), "--check"]) == 0
+    after = hashlib.sha256(draft.read_bytes()).hexdigest()
+    assert before == after
+
+
 def test_evidence_subcommand_no_action_exit2(tmp_path):
     draft = _check_draft(tmp_path)
     assert main(["evidence", str(draft)]) == 2
