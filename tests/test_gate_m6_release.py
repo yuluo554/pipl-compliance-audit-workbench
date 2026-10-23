@@ -336,8 +336,8 @@ def test_ci_asserts_collect_counts():
     data = _ci_workflow()
     runs = "\n".join(r for job in data["jobs"].values() for r in _job_runs(job))
     assert "--collect-only" in runs, "CI 未做收集数对账"
-    assert '"232"' in runs, "CI 未断言无 gui 收集数 232"
-    assert '"235"' in runs, "CI 未断言有 gui 收集数 235"
+    assert '"239"' in runs, "CI 未断言无 gui 收集数 239"
+    assert '"242"' in runs, "CI 未断言有 gui 收集数 242"
 
 
 def test_ci_actions_are_v7():
